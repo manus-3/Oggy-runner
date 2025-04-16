@@ -1,13 +1,57 @@
 <!DOCTYPE html>
-<html lang="bn">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Oggy and the Cockroaches</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-</head>
-<body style="text-align: center; padding-top: 50px;">
-  <h1>Oggy Runner Game</h1>
-  <button onclick="location.href='game.html'" style="padding: 10px 20px;">গেম শুরু করো</button>
-</body>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Oggy and the Cockroaches</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: url('g') no-repeat center center fixed;
+        background-size: cover;
+        font-family: 'Comic Sans MS', cursive, sans-serif;
+      }
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        text-align: center;
+      }
+      h1 {
+        font-size: 48px;
+        color: #ffffff;
+        text-shadow: 2px 2px 4px #000000;
+        margin-bottom: 40px;
+      }
+      .play-button {
+        padding: 15px 40px;
+        font-size: 24px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+      }
+      .play-button:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Oggy and the Cockroaches</h1>
+      <button class="play-button" onclick="startGame()">Play Now</button>
+    </div>
+
+    <script>
+      function startGame() {
+        // এখানে গেম শুরু হওয়ার পরবর্তী পেজে যাওয়ার কোড থাকবে
+        window.location.href = 'game.html';
+      }
+    </script>
+  </body>
 </html>
