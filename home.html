@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Oggy and the Cockroaches</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -23,101 +23,126 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
       height: 100vh;
       color: white;
-      text-shadow: 1px 1px 3px black;
+      text-shadow: 1px 1px 2px black;
     }
 
     h1 {
-      font-size: 26px;
-      margin-bottom: 20px;
-      text-align: center;
+      font-size: 24px;
+      margin-top: 20px;
     }
 
     #playBtn {
       background-color: #00BFFF;
+      padding: 14px 28px;
+      font-size: 18px;
       color: white;
-      font-size: 20px;
-      padding: 12px 30px;
       border: none;
       border-radius: 15px;
-      margin-top: 20px;
-      box-shadow: 0 5px 10px rgba(0,0,0,0.2);
-      width: 90%;
+      margin: 10px 0;
+      width: 85%;
       max-width: 300px;
     }
 
-    #playBtn:hover {
-      background-color: #0099cc;
-    }
-
-    .ref-box {
-      margin-top: 30px;
-      text-align: center;
+    .ref-box, .stats-box {
       background: rgba(0,0,0,0.5);
-      padding: 20px;
+      padding: 10px;
+      margin: 10px;
       border-radius: 10px;
+      text-align: center;
       width: 90%;
-      max-width: 340px;
+      max-width: 330px;
     }
 
     .copy-btn {
-      background: #28a745;
-      padding: 6px 12px;
-      border: none;
-      color: white;
       margin-top: 10px;
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 6px 12px;
       border-radius: 5px;
       cursor: pointer;
     }
 
-    #refLink {
+    #bottomNav {
+      display: flex;
+      justify-content: space-around;
+      background: rgba(0,0,0,0.6);
+      padding: 10px;
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+    }
+
+    .nav-icon {
+      color: white;
+      text-align: center;
       font-size: 12px;
-      word-break: break-all;
+      cursor: pointer;
+    }
+
+    .nav-icon:hover {
+      color: #00BFFF;
+    }
+
+    .stat-item {
+      margin: 5px 0;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
 
-  <h1>Welcome to Oggy's World</h1>
+  <h1>Oggy's World</h1>
 
   <button id="playBtn" onclick="showAdAndPlay()">Play Now</button>
+
+  <div class="stats-box">
+    <div class="stat-item">Cockroach Caught: <span id="cockroach">0</span></div>
+    <div class="stat-item">Oggy Coin: <span id="oggy">0</span></div>
+    <div class="stat-item">Referral Count: <span id="refcount">0</span></div>
+    <div class="stat-item">Last Catch: <span id="last">0</span></div>
+  </div>
 
   <div class="ref-box">
     <div>Your Referral Code:</div>
     <div id="refCode" style="font-weight:bold;"></div>
     <button class="copy-btn" onclick="copyCode()">Copy Now</button>
-    <p style="margin-top:10px;">Your Referral Link:</p>
-    <div id="refLink"></div>
+    <p style="margin-top:10px;">Referral Link:</p>
+    <div id="refLink" style="font-size:12px;"></div>
+  </div>
+
+  <div id="bottomNav">
+    <div class="nav-icon" onclick="goTo('index.html')">Home</div>
+    <div class="nav-icon" onclick="goTo('leaderboard.html')">Leaderboard</div>
+    <div class="nav-icon" onclick="goTo('withdraw.html')">Withdraw</div>
+    <div class="nav-icon" onclick="goTo('powerup.html')">Power Up</div>
+    <div class="nav-icon" onclick="goTo('tasks.html')">Daily Tasks</div>
   </div>
 
   <script>
-    // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyDVlPYXeHPNLaYy8UQp8c_TQwvEidTuyf4",
       authDomain: "oggy-runner.firebaseapp.com",
       projectId: "oggy-runner",
-      storageBucket: "oggy-runner.appspot.com",
-      messagingSenderId: "747549154067",
-      appId: "1:747549154067:web:xyz"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const auth = firebase.auth();
 
-    // Referral Code from URL
+    let uid = "";
     const urlParams = new URLSearchParams(window.location.search);
     const referralCode = urlParams.get("ref");
-    let uid = "";
 
     auth.signInAnonymously().then(() => {
       uid = auth.currentUser.uid;
-
       const userRef = db.collection("users").doc(uid);
-      userRef.get().then(docSnap => {
+      userRef.get().then((docSnap) => {
         if (!docSnap.exists) {
-          const newData = {
+          userRef.set({
             uid: uid,
             name: "Guest",
             created_at: Date.now(),
@@ -128,18 +153,20 @@
             referral_count: 0,
             referred_by: referralCode || "",
             last_catch: 0
-          };
-          userRef.set(newData);
-
-          // Count referral
+          });
           if (referralCode) {
             db.collection("users").doc(referralCode).update({
               referral_count: firebase.firestore.FieldValue.increment(1)
             });
           }
+        } else {
+          const data = docSnap.data();
+          document.getElementById("cockroach").innerText = data.cockroach_coin || 0;
+          document.getElementById("oggy").innerText = data.oggy_coin || 0;
+          document.getElementById("refcount").innerText = data.referral_count || 0;
+          document.getElementById("last").innerText = data.last_catch || 0;
         }
 
-        // Show Referral Code and Link
         document.getElementById("refCode").innerText = uid;
         const link = `https://your-vercel-url.vercel.app?ref=${uid}`;
         document.getElementById("refLink").innerText = link;
@@ -148,9 +175,7 @@
 
     function copyCode() {
       const link = document.getElementById("refLink").innerText;
-      navigator.clipboard.writeText(link).then(() => {
-        alert("Referral link copied!");
-      });
+      navigator.clipboard.writeText(link).then(() => alert("Referral link copied!"));
     }
 
     function showAdAndPlay() {
@@ -159,9 +184,12 @@
       }
       setTimeout(() => {
         window.location.href = "game.html";
-      }, 3000);
+      }, 3500);
+    }
+
+    function goTo(page) {
+      window.location.href = page;
     }
   </script>
-
 </body>
-</html>
+      </html>
