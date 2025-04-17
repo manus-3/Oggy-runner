@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Oggy and the Cockroaches</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Oggy and the Cockroaches</title>
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
@@ -23,28 +23,15 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
+      justify-content: space-between;
+      height: 100vh;
       color: white;
       text-shadow: 1px 1px 2px black;
-      padding-bottom: 70px;
     }
 
     h1 {
       font-size: 24px;
       margin-top: 20px;
-    }
-
-    #playBtn {
-      background-color: #00BFFF;
-      padding: 14px 28px;
-      font-size: 18px;
-      color: white;
-      border: none;
-      border-radius: 15px;
-      margin: 20px 0;
-      width: 85%;
-      max-width: 300px;
     }
 
     .ref-box, .stats-box {
@@ -67,11 +54,6 @@
       cursor: pointer;
     }
 
-    .stat-item {
-      margin: 5px 0;
-      font-size: 14px;
-    }
-
     #bottomNav {
       display: flex;
       justify-content: space-around;
@@ -88,29 +70,43 @@
       text-align: center;
       font-size: 12px;
       cursor: pointer;
-      flex: 1;
     }
 
-    .nav-icon img {
-      display: block;
-      margin: 0 auto 4px;
-      width: 24px;
-      filter: drop-shadow(1px 1px 1px black);
+    .nav-icon:hover {
+      color: #00BFFF;
+    }
+
+    .stat-item {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+
+    #playBtn {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #ff7b00;
+      color: white;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 25px;
+      font-size: 18px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      z-index: 1000;
     }
   </style>
 </head>
+
 <body>
 
   <h1>Oggy's World</h1>
-
-  <button id="playBtn" onclick="showAdAndPlay()">Play Now</button>
 
   <div class="stats-box">
     <div class="stat-item">Cockroach Caught: <span id="cockroach">0</span></div>
     <div class="stat-item">Oggy Coin: <span id="oggy">0</span></div>
     <div class="stat-item">Referral Count: <span id="refcount">0</span></div>
     <div class="stat-item">Last Catch: <span id="last">0</span></div>
-    <div class="stat-item">USD: <span id="usd">0</span></div>
   </div>
 
   <div class="ref-box">
@@ -121,23 +117,14 @@
     <div id="refLink" style="font-size:12px;"></div>
   </div>
 
-  <!-- Bottom Navigation -->
+  <button id="playBtn" onclick="showAdAndPlay()">Play Now</button>
+
   <div id="bottomNav">
-    <div class="nav-icon" onclick="goTo('index.html')">
-      <img src="https://img.icons8.com/ios-filled/50/ffffff/home.png"><br>Home
-    </div>
-    <div class="nav-icon" onclick="goTo('leaderboard.html')">
-      <img src="https://img.icons8.com/ios-filled/50/ffffff/leaderboard.png"><br>Leaderboard
-    </div>
-    <div class="nav-icon" onclick="goTo('withdraw.html')">
-      <img src="https://img.icons8.com/ios-filled/50/ffffff/money.png"><br>Withdraw
-    </div>
-    <div class="nav-icon" onclick="goTo('powerup.html')">
-      <img src="https://img.icons8.com/ios-filled/50/ffffff/lightning-bolt.png"><br>Power-Up
-    </div>
-    <div class="nav-icon" onclick="goTo('tasks.html')">
-      <img src="https://img.icons8.com/ios-filled/50/ffffff/task.png"><br>Tasks
-    </div>
+    <div class="nav-icon" onclick="goTo('index.html')">Home</div>
+    <div class="nav-icon" onclick="goTo('leaderboard.html')">Leaderboard</div>
+    <div class="nav-icon" onclick="goTo('withdraw.html')">Withdraw</div>
+    <div class="nav-icon" onclick="goTo('powerup.html')">Power Up</div>
+    <div class="nav-icon" onclick="goTo('tasks.html')">Daily Tasks</div>
   </div>
 
   <script>
@@ -182,7 +169,6 @@
           document.getElementById("oggy").innerText = data.oggy_coin || 0;
           document.getElementById("refcount").innerText = data.referral_count || 0;
           document.getElementById("last").innerText = data.last_catch || 0;
-          document.getElementById("usd").innerText = data.usd_balance?.toFixed(2) || 0;
         }
 
         document.getElementById("refCode").innerText = uid;
@@ -199,15 +185,10 @@
     function showAdAndPlay() {
       if (typeof show_9217711 === 'function') {
         show_9217711();
-        let check = setInterval(() => {
-          if (!document.querySelector("iframe") && !document.querySelector("ins")) {
-            clearInterval(check);
-            window.location.href = "game.html";
-          }
-        }, 2000);
-      } else {
-        alert("Ad failed to load. Try again.");
       }
+      setTimeout(() => {
+        window.location.href = "game.html";
+      }, 3500);
     }
 
     function goTo(page) {
@@ -215,4 +196,4 @@
     }
   </script>
 </body>
-</html>
+      </html>
