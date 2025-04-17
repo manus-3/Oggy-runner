@@ -1,16 +1,185 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Oggy and the cockroaches </title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <meta charset="UTF-8">
+  <title>Oggy and the Cockroaches</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: url('https://lh3.googleusercontent.com/d/1-BWJ7G4A8JVhtOlIRCq6rGFz_4gY91wY') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 100vh;
+      color: white;
+      text-shadow: 1px 1px 2px black;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-top: 20px;
+    }
+
+    .ref-box {
+      background: rgba(0,0,0,0.6);
+      padding: 12px;
+      border-radius: 10px;
+      text-align: center;
+      width: 90%;
+      max-width: 330px;
+      margin: 10px 0;
+    }
+
+    .copy-btn {
+      margin-top: 8px;
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #refLink {
+      font-size: 12px;
+      word-break: break-all;
+      margin-top: 5px;
+    }
+
+    #playBtn {
+      background-color: #00BFFF;
+      padding: 14px 28px;
+      font-size: 18px;
+      color: white;
+      border: none;
+      border-radius: 15px;
+      width: 85%;
+      max-width: 300px;
+      margin: 15px 0;
+    }
+
+    #bottomNav {
+      display: flex;
+      justify-content: space-around;
+      background: rgba(0,0,0,0.6);
+      padding: 10px;
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+    }
+
+    .nav-icon {
+      color: white;
+      text-align: center;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .nav-icon:hover {
+      color: #00BFFF;
+    }
+  </style>
 </head>
 <body>
+
+  <h1>Oggy's World</h1>
+
+  <div class="ref-box">
+    <div>Your Referral Code:</div>
+    <div id="refCode" style="font-weight:bold;"></div>
+    <button class="copy-btn" onclick="copyCode()">Copy Now</button>
+    <div style="margin-top:10px;">Referral Link:</div>
+    <div id="refLink"></div>
+  </div>
+
+  <button id="playBtn" onclick="playNow()">Play Now</button>
+
+  <div id="bottomNav">
+    <div class="nav-icon" onclick="goTo('index.html')">Home</div>
+    <div class="nav-icon" onclick="goTo('leaderboard.html')">Leaderboard</div>
+    <div class="nav-icon" onclick="goTo('withdraw.html')">Withdraw</div>
+    <div class="nav-icon" onclick="goTo('powerup.html')">Power Up</div>
+    <div class="nav-icon" onclick="goTo('tasks.html')">Daily Tasks</div>
+  </div>
+
   <script>
-    // Telegram Web App ready হলে home.html এ নিয়ে যাবে
-    Telegram.WebApp.ready();
-    window.location.href = "home.html";
+    const firebaseConfig = {
+      apiKey: "AIzaSyDVlPYXeHPNLaYy8UQp8c_TQwvEidTuyf4",
+      authDomain: "oggy-runner.firebaseapp.com",
+      projectId: "oggy-runner",
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    let uid = "";
+    const urlParams = new URLSearchParams(window.location.search);
+    const referralCode = urlParams.get("ref");
+
+    auth.signInAnonymously().then(() => {
+      uid = auth.currentUser.uid;
+      const userRef = db.collection("users").doc(uid);
+
+      userRef.get().then(docSnap => {
+        if (!docSnap.exists) {
+          userRef.set({
+            uid,
+            cockroach_coin: 0,
+            oggy_coin: 0,
+            usd_balance: 0,
+            referral_code: uid,
+            referral_count: 0,
+            referred_by: referralCode || "",
+            last_catch: 0,
+          });
+          if (referralCode) {
+            db.collection("users").doc(referralCode).update({
+              referral_count: firebase.firestore.FieldValue.increment(1),
+            });
+          }
+        }
+
+        document.getElementById("refCode").innerText = uid;
+        const link = `https://oggy-runner.vercel.app/?ref=${uid}`;
+        document.getElementById("refLink").innerText = link;
+      });
+    });
+
+    function copyCode() {
+      const link = document.getElementById("refLink").innerText;
+      navigator.clipboard.writeText(link)
+        .then(() => alert("Referral link copied!"))
+        .catch(() => alert("Failed to copy referral link"));
+    }
+function showAdAndPlay() {
+  if (typeof show_9217711 === 'function') {
+    show_9217711();
+  }
+  setTimeout(() => {
+    window.location.href = "game.html";
+  }, 18000); // 18 seconds = 18000 milliseconds
+    }
+    function playNow() {
+      window.location.href = "game.html";
+    }
+
+    function goTo(page) {
+      window.location.href = page;
+    }
   </script>
+
 </body>
-</html>
+  </html>
