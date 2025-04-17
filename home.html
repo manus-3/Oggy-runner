@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Oggy and the Cockroaches</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Firebase SDK -->
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js"></script>
@@ -19,75 +19,88 @@
       padding: 0;
       background: url('https://lh3.googleusercontent.com/d/1-BWJ7G4A8JVhtOlIRCq6rGFz_4gY91wY') no-repeat center center fixed;
       background-size: cover;
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      align-items: center;
+      justify-content: flex-start;
       height: 100vh;
       color: white;
       text-shadow: 1px 1px 2px black;
     }
 
     h1 {
-      text-align: center;
+      font-size: 26px;
       margin: 20px 0 10px;
     }
 
     .stats-box, .ref-box {
-      background: rgba(0, 0, 0, 0.5);
-      border-radius: 12px;
+      background: rgba(0,0,0,0.5);
       padding: 12px;
-      margin: 10px auto;
+      margin: 10px 0;
+      border-radius: 10px;
       width: 90%;
-      max-width: 330px;
+      max-width: 340px;
       text-align: center;
     }
 
     .stat-item {
       margin: 5px 0;
-      font-size: 14px;
+      font-size: 15px;
     }
 
     .copy-btn {
-      margin-top: 10px;
-      background: #4CAF50;
+      margin-top: 8px;
+      background: #28a745;
       color: white;
       border: none;
       padding: 6px 12px;
-      border-radius: 5px;
+      border-radius: 6px;
       cursor: pointer;
     }
 
     #playBtn {
-      margin: 15px auto;
-      background-color: #ff5722;
-      color: white;
-      padding: 14px 30px;
-      border: none;
-      border-radius: 25px;
+      background-color: #00BFFF;
+      padding: 14px 28px;
       font-size: 18px;
-      display: block;
+      color: white;
+      border: none;
+      border-radius: 15px;
+      margin-top: 14px;
+      width: 85%;
+      max-width: 300px;
     }
 
     #bottomNav {
       display: flex;
       justify-content: space-around;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 10px 0;
+      background: rgba(0,0,0,0.7);
+      padding: 10px;
+      width: 100%;
       position: fixed;
       bottom: 0;
-      width: 100%;
+      left: 0;
     }
 
     .nav-icon {
       color: white;
       text-align: center;
-      font-size: 12px;
-      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .nav-icon img {
+      width: 24px;
+      height: 24px;
+      display: block;
+      margin: 0 auto 3px;
+    }
+
+    #usdBox {
+      margin-top: 6px;
+      font-weight: bold;
     }
   </style>
 </head>
-
 <body>
 
   <h1>Oggy's World</h1>
@@ -97,34 +110,43 @@
     <div class="stat-item">Oggy Coin: <span id="oggy">0</span></div>
     <div class="stat-item">Referral Count: <span id="refcount">0</span></div>
     <div class="stat-item">Last Catch: <span id="last">0</span></div>
+    <div class="stat-item" id="usdBox">USD from Leaderboard: $<span id="usd">0</span></div>
   </div>
 
   <div class="ref-box">
     <div>Your Referral Code:</div>
-    <div id="refCode" style="font-weight: bold;"></div>
-    <button class="copy-btn" onclick="copyCode()">Copy Link</button>
-    <p style="margin-top: 10px;">Referral Link:</p>
-    <div id="refLink" style="font-size: 12px;"></div>
+    <div id="refCode" style="font-weight:bold;"></div>
+    <button class="copy-btn" onclick="copyCode()">Copy Now</button>
+    <p style="margin-top:10px;">Referral Link:</p>
+    <div id="refLink" style="font-size:12px;word-wrap:break-word;"></div>
   </div>
 
   <button id="playBtn" onclick="showAdAndPlay()">Play Now</button>
 
   <div id="bottomNav">
-    <div class="nav-icon" onclick="goTo('index.html')">Home</div>
-    <div class="nav-icon" onclick="goTo('leaderboard.html')">Leaderboard</div>
-    <div class="nav-icon" onclick="goTo('withdraw.html')">Withdraw</div>
-    <div class="nav-icon" onclick="goTo('powerup.html')">Power Up</div>
-    <div class="nav-icon" onclick="goTo('tasks.html')">Daily Tasks</div>
+    <div class="nav-icon" onclick="goTo('index.html')">
+      <img src="https://cdn-icons-png.flaticon.com/512/25/25694.png"><div>Home</div>
+    </div>
+    <div class="nav-icon" onclick="goTo('leaderboard.html')">
+      <img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png"><div>Leaderboard</div>
+    </div>
+    <div class="nav-icon" onclick="goTo('withdraw.html')">
+      <img src="https://cdn-icons-png.flaticon.com/512/1042/1042337.png"><div>Withdraw</div>
+    </div>
+    <div class="nav-icon" onclick="goTo('powerup.html')">
+      <img src="https://cdn-icons-png.flaticon.com/512/3524/3524388.png"><div>Power Up</div>
+    </div>
+    <div class="nav-icon" onclick="goTo('tasks.html')">
+      <img src="https://cdn-icons-png.flaticon.com/512/833/833472.png"><div>Tasks</div>
+    </div>
   </div>
 
   <script>
-    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyDVlPYXeHPNLaYy8UQp8c_TQwvEidTuyf4",
       authDomain: "oggy-runner.firebaseapp.com",
       projectId: "oggy-runner",
     };
-
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const auth = firebase.auth();
@@ -140,7 +162,7 @@
       userRef.get().then((docSnap) => {
         if (!docSnap.exists) {
           userRef.set({
-            uid,
+            uid: uid,
             name: "Guest",
             created_at: Date.now(),
             cockroach_coin: 0,
@@ -162,9 +184,9 @@
           document.getElementById("oggy").innerText = data.oggy_coin || 0;
           document.getElementById("refcount").innerText = data.referral_count || 0;
           document.getElementById("last").innerText = data.last_catch || 0;
+          document.getElementById("usd").innerText = data.usd_balance?.toFixed(2) || "0.00";
         }
 
-        // Update referral info
         document.getElementById("refCode").innerText = uid;
         const link = `https://oggy-runner.vercel.app?ref=${uid}`;
         document.getElementById("refLink").innerText = link;
@@ -176,13 +198,13 @@
       navigator.clipboard.writeText(link).then(() => alert("Referral link copied!"));
     }
 
-    function showAdAndPlay() {
-      if (typeof show_9217711 === 'function') {
-        show_9217711();
-      }
-      setTimeout(() => {
-        window.location.href = "game.html";
-      }, 18000); // 18 seconds
+   function showAdAndPlay() {
+  if (typeof show_9217711 === 'function') {
+    show_9217711();
+  }
+  setTimeout(() => {
+    window.location.href = "game.html";
+  }, 18000); // 18 seconds = 18000 milliseconds
     }
 
     function goTo(page) {
@@ -190,4 +212,4 @@
     }
   </script>
 </body>
-      </html>
+  </html>
