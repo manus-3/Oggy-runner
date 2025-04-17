@@ -1,166 +1,165 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Oggy Runner Lobby</title>
+  <meta charset="UTF-8" />
+  <title>Oggy and the Cockroaches</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js"></script>
+
+  <!-- Ad Script -->
+  <script src='//whephiwums.com/sdk.js' data-zone='9217711' data-sdk='show_9217711'></script>
+
   <style>
     body {
       margin: 0;
       padding: 0;
-      background-image: url('https://lh3.googleusercontent.com/d/1-BWJ7G4A8JVhtOlIRCq6rGFz_4gY91wY');
+      background: url('https://lh3.googleusercontent.com/d/1-BWJ7G4A8JVhtOlIRCq6rGFz_4gY91wY') no-repeat center center fixed;
       background-size: cover;
-      background-position: center;
-      font-family: Arial, sans-serif;
-      color: white;
-    }
-    #userInfo {
-      padding: 20px;
-      background: rgba(0,0,0,0.6);
-      margin: 10px;
-      border-radius: 10px;
-    }
-    #referralSection {
-      background: rgba(255,255,255,0.1);
-      padding: 10px;
-      margin: 10px;
-      border-radius: 10px;
-    }
-    button {
-      background: #1e90ff;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-    #playBtn {
-      position: fixed;
-      bottom: 70px;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-    #bottomNav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(0,0,0,0.9);
+      font-family: 'Segoe UI', sans-serif;
       display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
-      z-index: 1000;
-    }
-    #bottomNav button {
-      background: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
       color: white;
-      font-size: 14px;
+      text-shadow: 1px 1px 3px black;
+    }
+
+    h1 {
+      font-size: 26px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    #playBtn {
+      background-color: #00BFFF;
+      color: white;
+      font-size: 20px;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 15px;
+      margin-top: 20px;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+      width: 90%;
+      max-width: 300px;
+    }
+
+    #playBtn:hover {
+      background-color: #0099cc;
+    }
+
+    .ref-box {
+      margin-top: 30px;
+      text-align: center;
+      background: rgba(0,0,0,0.5);
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 340px;
+    }
+
+    .copy-btn {
+      background: #28a745;
+      padding: 6px 12px;
+      border: none;
+      color: white;
+      margin-top: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #refLink {
+      font-size: 12px;
+      word-break: break-all;
     }
   </style>
 </head>
 <body>
 
-  <div id="userInfo">Loading...</div>
+  <h1>Welcome to Oggy's World</h1>
 
-  <div id="referralSection">
-    <p>তোমার রেফার কোড:</p>
-    <p id="refCode" style="font-weight:bold;"></p>
-    <button onclick="copyCode()">Copy Now</button>
+  <button id="playBtn" onclick="showAdAndPlay()">Play Now</button>
+
+  <div class="ref-box">
+    <div>Your Referral Code:</div>
+    <div id="refCode" style="font-weight:bold;"></div>
+    <button class="copy-btn" onclick="copyCode()">Copy Now</button>
+    <p style="margin-top:10px;">Your Referral Link:</p>
+    <div id="refLink"></div>
   </div>
 
-  <!-- Ad before play -->
-  <div id="ad-container" style="text-align:center;">
-    <script src='//whephiwums.com/sdk.js' data-zone='9217711' data-sdk='show_9217711'></script>
-  </div>
-
-  <div id="playBtn">
-    <button onclick="startGame()">Play Now</button>
-  </div>
-
-  <!-- Bottom Nav -->
-  <div id="bottomNav">
-    <button onclick="goToPage('home.html')">🏠<br>Home</button>
-    <button onclick="goToPage('withdraw.html')">💸<br>Withdraw</button>
-    <button onclick="goToPage('powerup.html')">⚡<br>Power Up</button>
-    <button onclick="goToPage('tasks.html')">🎯<br>Tasks</button>
-    <button onclick="goToPage('leaderboard.html')">🏆<br>Leaderboard</button>
-  </div>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
+  <script>
+    // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyDVlPYXeHPNLaYy8UQp8c_TQwvEidTuyf4",
       authDomain: "oggy-runner.firebaseapp.com",
       projectId: "oggy-runner",
       storageBucket: "oggy-runner.appspot.com",
       messagingSenderId: "747549154067",
-      appId: "1:747549154067:web:oggyapp123" // put actual one later
+      appId: "1:747549154067:web:xyz"
     };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-    const tg = window.Telegram.WebApp;
-    tg.ready();
+    // Referral Code from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const referralCode = urlParams.get("ref");
+    let uid = "";
 
-    signInAnonymously(auth).then(() => {
-      onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          const uid = user.uid;
-          const tg_id = tg.initDataUnsafe.user?.id || "unknown";
-          const name = tg.initDataUnsafe.user?.first_name || "User";
-          const referral_code = uid.slice(0, 6);
+    auth.signInAnonymously().then(() => {
+      uid = auth.currentUser.uid;
 
-          const userData = {
-            uid,
-            tg_id,
-            name,
+      const userRef = db.collection("users").doc(uid);
+      userRef.get().then(docSnap => {
+        if (!docSnap.exists) {
+          const newData = {
+            uid: uid,
+            name: "Guest",
             created_at: Date.now(),
             cockroach_coin: 0,
             oggy_coin: 0,
-            last_catch: 0,
             usd_balance: 0,
-            referral_code,
-            referral_count: 0
+            referral_code: uid,
+            referral_count: 0,
+            referred_by: referralCode || "",
+            last_catch: 0
           };
+          userRef.set(newData);
 
-          await setDoc(doc(db, "users", uid), userData, { merge: true });
-
-          const snap = await getDoc(doc(db, "users", uid));
-          if (snap.exists()) {
-            const data = snap.data();
-            document.getElementById("userInfo").innerHTML = `
-              <h2>${data.name}</h2>
-              <p>Cockroach Coin: ${data.cockroach_coin || 0}</p>
-              <p>Oggy Coin: ${data.oggy_coin || 0}</p>
-              <p>Balance: $${data.usd_balance || 0}</p>
-              <p>Last Catch: ${data.last_catch || 0}</p>
-              <p>Referral Count: ${data.referral_count || 0}</p>
-            `;
-            document.getElementById("refCode").innerText = data.referral_code;
+          // Count referral
+          if (referralCode) {
+            db.collection("users").doc(referralCode).update({
+              referral_count: firebase.firestore.FieldValue.increment(1)
+            });
           }
         }
+
+        // Show Referral Code and Link
+        document.getElementById("refCode").innerText = uid;
+        const link = `https://your-vercel-url.vercel.app?ref=${uid}`;
+        document.getElementById("refLink").innerText = link;
       });
     });
-  </script>
 
-  <script>
     function copyCode() {
-      const code = document.getElementById("refCode").innerText;
-      navigator.clipboard.writeText(code);
-      alert("Referral Code Copied: " + code);
+      const link = document.getElementById("refLink").innerText;
+      navigator.clipboard.writeText(link).then(() => {
+        alert("Referral link copied!");
+      });
     }
 
-    function startGame() {
-      window.location.href = "game.html";
-    }
-
-    function goToPage(page) {
-      window.location.href = page;
+    function showAdAndPlay() {
+      if (typeof show_9217711 === 'function') {
+        show_9217711();
+      }
+      setTimeout(() => {
+        window.location.href = "game.html";
+      }, 3000);
     }
   </script>
 
