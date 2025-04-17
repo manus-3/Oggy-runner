@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <title>Oggy Runner Lobby</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-image: url('https://lh3.googleusercontent.com/d/1-BWJ7G4A8JVhtOlIRCq6rGFz_4gY91wY');
+      background-size: cover;
+      background-position: center;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+    #userInfo {
+      padding: 20px;
+      background: rgba(0,0,0,0.6);
+      margin: 10px;
+      border-radius: 10px;
+    }
+    #referralSection {
+      background: rgba(255,255,255,0.1);
+      padding: 10px;
+      margin: 10px;
+      border-radius: 10px;
+    }
+    button {
+      background: #1e90ff;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    #playBtn {
+      position: fixed;
+      bottom: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    #bottomNav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,0.9);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      z-index: 1000;
+    }
+    #bottomNav button {
+      background: none;
+      color: white;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="userInfo">Loading...</div>
+
+  <div id="referralSection">
+    <p>তোমার রেফার কোড:</p>
+    <p id="refCode" style="font-weight:bold;"></p>
+    <button onclick="copyCode()">Copy Now</button>
+  </div>
+
+  <!-- Ad before play -->
+  <div id="ad-container" style="text-align:center;">
+    <script src='//whephiwums.com/sdk.js' data-zone='9217711' data-sdk='show_9217711'></script>
+  </div>
+
+  <div id="playBtn">
+    <button onclick="startGame()">Play Now</button>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div id="bottomNav">
+    <button onclick="goToPage('home.html')">🏠<br>Home</button>
+    <button onclick="goToPage('withdraw.html')">💸<br>Withdraw</button>
+    <button onclick="goToPage('powerup.html')">⚡<br>Power Up</button>
+    <button onclick="goToPage('tasks.html')">🎯<br>Tasks</button>
+    <button onclick="goToPage('leaderboard.html')">🏆<br>Leaderboard</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDVlPYXeHPNLaYy8UQp8c_TQwvEidTuyf4",
+      authDomain: "oggy-runner.firebaseapp.com",
+      projectId: "oggy-runner",
+      storageBucket: "oggy-runner.appspot.com",
+      messagingSenderId: "747549154067",
+      appId: "1:747549154067:web:oggyapp123" // put actual one later
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+
+    signInAnonymously(auth).then(() => {
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          const uid = user.uid;
+          const tg_id = tg.initDataUnsafe.user?.id || "unknown";
+          const name = tg.initDataUnsafe.user?.first_name || "User";
+          const referral_code = uid.slice(0, 6);
+
+          const userData = {
+            uid,
+            tg_id,
+            name,
+            created_at: Date.now(),
+            cockroach_coin: 0,
+            oggy_coin: 0,
+            last_catch: 0,
+            usd_balance: 0,
+            referral_code,
+            referral_count: 0
+          };
+
+          await setDoc(doc(db, "users", uid), userData, { merge: true });
+
+          const snap = await getDoc(doc(db, "users", uid));
+          if (snap.exists()) {
+            const data = snap.data();
+            document.getElementById("userInfo").innerHTML = `
+              <h2>${data.name}</h2>
+              <p>Cockroach Coin: ${data.cockroach_coin || 0}</p>
+              <p>Oggy Coin: ${data.oggy_coin || 0}</p>
+              <p>Balance: $${data.usd_balance || 0}</p>
+              <p>Last Catch: ${data.last_catch || 0}</p>
+              <p>Referral Count: ${data.referral_count || 0}</p>
+            `;
+            document.getElementById("refCode").innerText = data.referral_code;
+          }
+        }
+      });
+    });
+  </script>
+
+  <script>
+    function copyCode() {
+      const code = document.getElementById("refCode").innerText;
+      navigator.clipboard.writeText(code);
+      alert("Referral Code Copied: " + code);
+    }
+
+    function startGame() {
+      window.location.href = "game.html";
+    }
+
+    function goToPage(page) {
+      window.location.href = page;
+    }
+  </script>
+
+</body>
+</html>
