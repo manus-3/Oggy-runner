@@ -2,207 +2,182 @@
 <html lang="bn">
 <head>
   <meta charset="UTF-8">
-  <title>Oggy and the Cockroaches</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Oggy Runner - Lobby</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     body {
       margin: 0;
       padding: 0;
       font-family: 'Arial', sans-serif;
-      background: url('https://lh3.googleusercontent.com/d/1-BWJ7G4A8JVhtOlIRCq6rGFz_4gY91wY') no-repeat center center fixed;
+      background: url('https://lh3.googleusercontent.com/d/1-BWJ7G4A8JVhtOlIRCq6rGFz_4gY91wY') no-repeat center center;
       background-size: cover;
       color: white;
+    }
+    .container {
+      padding: 20px;
       text-align: center;
     }
-
-    .overlay {
-      background: rgba(0, 0, 0, 0.5);
-      padding: 20px;
-      min-height: 100vh;
-      box-sizing: border-box;
+    .stats {
+      background-color: rgba(0, 0, 0, 0.6);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
     }
-
-    .title {
-      font-size: 2em;
-      margin-bottom: 10px;
-    }
-
-    .stats-box {
-      background: rgba(255,255,255,0.1);
+    .referral {
+      margin: 10px 0;
+      background-color: rgba(0,0,0,0.5);
       padding: 10px;
       border-radius: 10px;
-      margin-bottom: 20px;
     }
-
-    .stat-item {
-      margin: 5px 0;
+    .referral button {
+      margin-top: 5px;
+      padding: 5px 10px;
+      font-size: 14px;
     }
-
-    .button {
-      background: #00bfff;
-      color: white;
-      padding: 12px 24px;
+    #playBtn {
+      background-color: #00c853;
+      padding: 15px 30px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 18px;
-      cursor: pointer;
-      margin: 20px 0;
-    }
-
-    .button:hover {
-      background: #009acd;
-    }
-
-    .ref-section {
-      margin-top: 20px;
-    }
-
-    .ref-link {
-      word-break: break-all;
-      background: #222;
-      padding: 8px;
-      border-radius: 5px;
-      margin: 10px 0;
-    }
-
-    .copy-btn {
-      background: #28a745;
-      border: none;
       color: white;
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer;
+      margin: 20px auto;
     }
-
-    .nav-icons {
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: rgba(0,0,0,0.6);
       display: flex;
       justify-content: space-around;
-      margin-top: 30px;
+      padding: 10px 0;
     }
-
-    .nav-icons img {
-      width: 40px;
-      height: 40px;
-      cursor: pointer;
+    .bottom-nav img {
+      width: 30px;
+      height: 30px;
     }
   </style>
 </head>
 <body>
-  <div class="overlay">
-    <div class="title">Oggy and the Cockroaches</div>
 
-    <div class="stats-box">
-      <div class="stat-item">Cockroach Caught: <span id="cockroach">0</span></div>
-      <div class="stat-item">Oggy Coin: <span id="oggy">0</span></div>
-      <div class="stat-item">Referral Count: <span id="refcount">0</span></div>
-      <div class="stat-item">USD Earned: $<span id="usd">0.00</span></div>
-      <div class="stat-item">Last Catch: <span id="last">0</span></div>
+  <div class="container">
+    <div id="userInfo" class="stats">লোড হচ্ছে...</div>
+
+    <div class="referral">
+      <p><strong>রেফারেল লিংক:</strong></p>
+      <input type="text" id="refLink" readonly style="width:90%; padding:5px;"/>
+      <br>
+      <button onclick="copyReferral()">Copy Now</button>
     </div>
 
-    <button class="button" id="playBtn">Play Now</button>
-
-    <div class="ref-section">
-      <div>Your Referral Code: <b><span id="refCode">Loading...</span></b></div>
-      <div class="ref-link" id="refLink">Generating...</div>
-      <button class="copy-btn" onclick="copyRef()">Copy Now</button>
-    </div>
-
-    <div class="nav-icons">
-      <img src="https://cdn-icons-png.flaticon.com/128/1946/1946488.png" onclick="go('index.html')" title="Home">
-      <img src="https://cdn-icons-png.flaticon.com/128/11812/11812205.png" onclick="go('withdraw.html')" title="Withdraw">
-      <img src="https://cdn-icons-png.flaticon.com/128/747/747376.png" onclick="go('powerup.html')" title="Power-Up">
-      <img src="https://cdn-icons-png.flaticon.com/128/11719/11719953.png" onclick="go('tasks.html')" title="Daily Tasks">
-      <img src="https://cdn-icons-png.flaticon.com/128/565/565547.png" onclick="go('leaderboard.html')" title="Leaderboard">
-    </div>
+    <button id="playBtn" onclick="showAdAndPlay()">Play Now</button>
   </div>
 
-  <!-- Ad Script -->
-  <script src='//whephiwums.com/sdk.js' data-zone='9217711' data-sdk='show_9217711'></script>
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
-  <!-- Telegram Mini App -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <div class="bottom-nav">
+    <a href="index.html"><img src="https://cdn-icons-png.flaticon.com/512/25/25694.png" alt="Home"></a>
+    <a href="withdraw.html"><img src="https://cdn-icons-png.flaticon.com/512/3106/3106781.png" alt="Withdraw"></a>
+    <a href="powerup.html"><img src="https://cdn-icons-png.flaticon.com/512/833/833472.png" alt="Powerup"></a>
+    <a href="tasks.html"><img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="Tasks"></a>
+    <a href="leaderboard.html"><img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" alt="Leaderboard"></a>
+  </div>
 
   <script>
+    function copyReferral() {
+      const refLink = document.getElementById("refLink");
+      refLink.select();
+      document.execCommand("copy");
+      alert("Referral link copied!");
+    }
+
+    function showAdAndPlay() {
+      if (typeof show_9217711 === 'function') {
+        show_9217711();
+        const interval = setInterval(() => {
+          if (!document.querySelector('iframe')) {
+            clearInterval(interval);
+            window.location.href = 'game.html';
+          }
+        }, 1000);
+      } else {
+        window.location.href = 'game.html';
+      }
+    }
+  </script>
+
+  <script src="//whephiwums.com/sdk.js" data-zone="9217711" data-sdk="show_9217711"></script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
     const firebaseConfig = {
       apiKey: "AIzaSyDVlPYXeHPNLaYy8UQp8c_TQwvEidTuyf4",
       authDomain: "oggy-runner.firebaseapp.com",
       projectId: "oggy-runner",
       storageBucket: "oggy-runner.appspot.com",
       messagingSenderId: "747549154067",
-      appId: "1:747549154067:web:xyz"
+      appId: "1:747549154067:web:xxxxxxxxxxxxx"
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
     const tg = window.Telegram.WebApp;
-    tg.expand();
-    const uid = tg.initDataUnsafe.user?.id?.toString();
-    const userRef = db.collection("users").doc(uid);
+    tg.ready();
 
-    async function loadUser() {
-      const userDoc = await userRef.get();
-      if (!userDoc.exists) {
-        const ref = new URLSearchParams(window.location.search).get("ref") || "";
-        await userRef.set({
-          uid: uid,
-          name: tg.initDataUnsafe.user?.first_name || "Unknown",
-          tg_id: uid,
-          created_at: Date.now(),
-          cockroach_coin: 0,
-          oggy_coin: 0,
-          last_catch: 0,
-          usd_balance: 0,
-          referral_code: ref,
-          referral_count: 0
-        });
-        if (ref) {
-          const refUser = db.collection("users").doc(ref);
-          await refUser.update({
-            referral_count: firebase.firestore.FieldValue.increment(1)
-          });
+    signInAnonymously(auth).then(() => {
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          const uid = user.uid;
+          const ref = new URLSearchParams(window.location.search).get("ref");
+          const userRef = doc(db, "users", uid);
+          const docSnap = await getDoc(userRef);
+
+          if (!docSnap.exists()) {
+            const newUser = {
+              uid,
+              name: tg.initDataUnsafe.user?.first_name || "Unknown",
+              tg_id: tg.initDataUnsafe.user?.id || "N/A",
+              cockroach_coin: 0,
+              last_catch: 0,
+              oggy_coin: 0,
+              usd_balance: 0,
+              referral_code: uid.substring(0, 6),
+              referred_by: ref || null,
+              referral_count: 0,
+              created_at: Date.now()
+            };
+            await setDoc(userRef, newUser);
+            if (ref) {
+              const refUser = doc(db, "users", ref);
+              const refSnap = await getDoc(refUser);
+              if (refSnap.exists()) {
+                await setDoc(refUser, {
+                  referral_count: (refSnap.data().referral_count || 0) + 1
+                }, { merge: true });
+              }
+            }
+          }
+
+          const finalSnap = await getDoc(userRef);
+          if (finalSnap.exists()) {
+            const data = finalSnap.data();
+            document.getElementById("userInfo").innerHTML = `
+              <h2>${data.name}</h2>
+              <p>Cockroach Caught: ${data.cockroach_coin || 0}</p>
+              <p>Oggy Coin: ${data.oggy_coin || 0}</p>
+              <p>USD: $${data.usd_balance || 0}</p>
+              <p>Last Catch: ${data.last_catch || 0}</p>
+              <p>Referral Count: ${data.referral_count || 0}</p>
+            `;
+            document.getElementById("refLink").value = window.location.origin + window.location.pathname + "?ref=" + data.uid;
+          }
         }
-      }
-
-      const data = (await userRef.get()).data();
-      document.getElementById("cockroach").innerText = data.cockroach_coin || 0;
-      document.getElementById("oggy").innerText = data.oggy_coin || 0;
-      document.getElementById("refcount").innerText = data.referral_count || 0;
-      document.getElementById("usd").innerText = (data.usd_balance || 0).toFixed(2);
-      document.getElementById("last").innerText = data.last_catch || 0;
-      document.getElementById("refCode").innerText = uid;
-
-      const currentUrl = window.location.href.split('?')[0];
-      const refLink = `${currentUrl}?ref=${uid}`;
-      document.getElementById("refLink").innerText = refLink;
-    }
-
-    function copyRef() {
-      const text = document.getElementById("refLink").innerText;
-      navigator.clipboard.writeText(text).then(() => {
-        alert("Referral link copied!");
       });
-    }
-
-    function go(page) {
-      window.location.href = page;
-    }
-
-    document.getElementById("playBtn").addEventListener("click", () => {
-      if (window.show_9217711) {
-        show_9217711().then(() => {
-          window.location.href = "game.html";
-        });
-      } else {
-        window.location.href = "game.html";
-      }
     });
-
-    loadUser();
   </script>
+
 </body>
 </html>
