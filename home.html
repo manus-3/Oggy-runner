@@ -1,179 +1,183 @@
-<!DOCTYPE html>
-<html lang="bn">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Oggy Runner - Lobby</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Arial', sans-serif;
-      background: url('https://drive.google.com/uc?export=view&id=1-BWJ7G4A8JVhtOlIRCq6rGFz_4gY91wY') no-repeat center center;
-      background-size: cover;
-      color: white;
-    }
-    .container {
-      padding: 20px;
-      text-align: center;
-    }
-    .stats {
-      background-color: rgba(0, 0, 0, 0.6);
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 15px;
-    }
-    .referral {
-      margin: 10px 0;
-      background-color: rgba(0,0,0,0.5);
-      padding: 10px;
-      border-radius: 10px;
-    }
-    .referral button {
-      margin-top: 5px;
-      padding: 5px 10px;
-      font-size: 14px;
-    }
-    #playBtn {
-      background-color: #00c853;
-      padding: 15px 30px;
-      border: none;
-      border-radius: 10px;
-      font-size: 18px;
-      color: white;
-      margin: 20px auto;
-    }
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      background: rgba(0,0,0,0.6);
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
-    }
-    .bottom-nav img {
-      width: 30px;
-      height: 30px;
-    }
-  </style>
-</head>
-<body>
-
-  <div class="container">
-    <div id="userInfo" class="stats">লোড হচ্ছে...</div>
-
-    <div class="referral">
-      <p><strong>রেফারেল লিংক:</strong></p>
-      <input type="text" id="refLink" readonly style="width:90%; padding:5px;"/>
-      <br>
-      <button onclick="copyReferral()">Copy Now</button>
-    </div>
-
-    <button id="playBtn" onclick="showAdAndPlay()">Play Now</button>
-  </div>
-
-  <div class="bottom-nav">
-    <a href="index.html"><img src="https://drive.google.com/uc?export=view&id=1O8kHqYFhKRq_5XhMj-A6shPgU-J-LYOc" alt="Home"></a>
-    <a href="withdraw.html"><img src="https://drive.google.com/uc?export=view&id=1XXMnZ1QYOvMQLKtEoJ8H7fxlVZ9DEHgY" alt="Withdraw"></a>
-    <a href="powerup.html"><img src="https://drive.google.com/uc?export=view&id=1SxyUVJ5DNImRzG_EuGmGEUjcPZf2WyoG" alt="Powerup"></a>
-    <a href="tasks.html"><img src="https://drive.google.com/uc?export=view&id=1MAkduzFZEEf2IYgATYZ2PNSWvmJDjl9q" alt="Tasks"></a>
-    <a href="leaderboard.html"><img src="https://drive.google.com/uc?export=view&id=1EP4xW88uXf8j0tbGmf6ZhF-v3EmWcz_G" alt="Leaderboard"></a>
-  </div>
-
-  <script>
-    function copyReferral() {
-      const refLink = document.getElementById("refLink");
-      refLink.select();
-      document.execCommand("copy");
-      alert("Referral link copied!");
-    }
-
-    function showAdAndPlay() {
-      if (typeof show_9217711 === 'function') {
-        show_9217711(); // Show ad
-        setTimeout(() => {
-          window.location.href = 'game.html';
-        }, 8000); // Wait 8 seconds
-      } else {
-        window.location.href = 'game.html';
-      }
-    }
-  </script>
-
-  <script src="//whephiwums.com/sdk.js" data-zone="9217711" data-sdk="show_9217711"></script>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDVlPYXeHPNLaYy8UQp8c_TQwvEidTuyf4",
-      authDomain: "oggy-runner.firebaseapp.com",
-      projectId: "oggy-runner",
-      storageBucket: "oggy-runner.appspot.com",
-      messagingSenderId: "747549154067",
-      appId: "1:747549154067:web:xxxxxxxxxxxxx"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-
-    signInAnonymously(auth).then(() => {
-      onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          const uid = user.uid;
-          const ref = new URLSearchParams(window.location.search).get("ref");
-          const userRef = doc(db, "users", uid);
-          const docSnap = await getDoc(userRef);
-
-          if (!docSnap.exists()) {
-            const newUser = {
-              uid,
-              name: tg.initDataUnsafe.user?.first_name || "Unknown",
-              tg_id: tg.initDataUnsafe.user?.id || "N/A",
-              cockroach_coin: 0,
-              last_catch: 0,
-              oggy_coin: 0,
-              usd_balance: 0,
-              referral_code: uid.substring(0, 6),
-              referred_by: ref || null,
-              referral_count: 0,
-              created_at: Date.now()
-            };
-            await setDoc(userRef, newUser);
-            if (ref) {
-              const refUser = doc(db, "users", ref);
-              const refSnap = await getDoc(refUser);
-              if (refSnap.exists()) {
-                await setDoc(refUser, {
-                  referral_count: (refSnap.data().referral_count || 0) + 1
-                }, { merge: true });
-              }
-            }
-          }
-
-          const finalSnap = await getDoc(userRef);
-          if (finalSnap.exists()) {
-            const data = finalSnap.data();
-            document.getElementById("userInfo").innerHTML = `
-              <h2>${data.name}</h2>
-              <p>Cockroach Caught: ${data.cockroach_coin || 0}</p>
-              <p>Oggy Coin: ${data.oggy_coin || 0}</p>
-              <p>USD: $${data.usd_balance || 0}</p>
-              <p>Last Catch: ${data.last_catch || 0}</p>
-              <p>Referral Count: ${data.referral_count || 0}</p>
-            `;
-            document.getElementById("refLink").value = window.location.origin + window.location.pathname + "?ref=" + data.uid;
-          }
-        }
-      });
-    });
-  </script>
-</body>
-      </html>
+<!DOCTYPE html>  
+<html lang="bn">  
+<head>  
+  <meta charset="UTF-8">  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+  <title>Oggy Runner - Lobby</title>  
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>  
+  <style>  
+    body {  
+      margin: 0;  
+      padding: 0;  
+      font-family: 'Arial', sans-serif;  
+      background: url('https://lh3.googleusercontent.com/d/1-BWJ7G4A8JVhtOlIRCq6rGFz_4gY91wY') no-repeat center center;  
+      background-size: cover;  
+      color: white;  
+    }  
+    .container {  
+      padding: 20px;  
+      text-align: center;  
+    }  
+    .stats {  
+      background-color: rgba(0, 0, 0, 0.6);  
+      border-radius: 10px;  
+      padding: 15px;  
+      margin-bottom: 15px;  
+    }  
+    .referral {  
+      margin: 10px 0;  
+      background-color: rgba(0,0,0,0.5);  
+      padding: 10px;  
+      border-radius: 10px;  
+    }  
+    .referral button {  
+      margin-top: 5px;  
+      padding: 5px 10px;  
+      font-size: 14px;  
+    }  
+    #playBtn {  
+      background-color: #00c853;  
+      padding: 15px 30px;  
+      border: none;  
+      border-radius: 10px;  
+      font-size: 18px;  
+      color: white;  
+      margin: 20px auto;  
+    }  
+    .bottom-nav {  
+      position: fixed;  
+      bottom: 0;  
+      width: 100%;  
+      background: rgba(0,0,0,0.6);  
+      display: flex;  
+      justify-content: space-around;  
+      padding: 10px 0;  
+    }  
+    .bottom-nav img {  
+      width: 30px;  
+      height: 30px;  
+    }  
+  </style>  
+</head>  
+<body>  
+  
+  <div class="container">  
+    <div id="userInfo" class="stats">লোড হচ্ছে...</div>  
+  
+    <div class="referral">  
+      <p><strong>রেফারেল লিংক:</strong></p>  
+      <input type="text" id="refLink" readonly style="width:90%; padding:5px;"/>  
+      <br>  
+      <button onclick="copyReferral()">Copy Now</button>  
+    </div>  
+  
+    <button id="playBtn" onclick="showAdAndPlay()">Play Now</button>  
+  </div>  
+  
+  <div class="bottom-nav">  
+    <a href="index.html"><img src="https://cdn-icons-png.flaticon.com/512/25/25694.png" alt="Home"></a>  
+    <a href="withdraw.html"><img src="https://cdn-icons-png.flaticon.com/512/3106/3106781.png" alt="Withdraw"></a>  
+    <a href="powerup.html"><img src="https://cdn-icons-png.flaticon.com/512/833/833472.png" alt="Powerup"></a>  
+    <a href="tasks.html"><img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="Tasks"></a>  
+    <a href="leaderboard.html"><img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" alt="Leaderboard"></a>  
+  </div>  
+  
+  <script>  
+    function copyReferral() {  
+      const refLink = document.getElementById("refLink");  
+      refLink.select();  
+      document.execCommand("copy");  
+      alert("Referral link copied!");  
+    }  
+  
+    function showAdAndPlay() {  
+      if (typeof show_9217711 === 'function') {  
+        show_9217711();  
+        const interval = setInterval(() => {  
+          if (!document.querySelector('iframe')) {  
+            clearInterval(interval);  
+            window.location.href = 'game.html';  
+          }  
+        }, 1000);  
+      } else {  
+        window.location.href = 'game.html';  
+      }  
+    }  
+  </script>  
+  
+  <script src="//whephiwums.com/sdk.js" data-zone="9217711" data-sdk="show_9217711"></script>  
+  
+  <script type="module">  
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";  
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";  
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";  
+  
+    const firebaseConfig = {  
+      apiKey: "AIzaSyDVlPYXeHPNLaYy8UQp8c_TQwvEidTuyf4",  
+      authDomain: "oggy-runner.firebaseapp.com",  
+      projectId: "oggy-runner",  
+      storageBucket: "oggy-runner.appspot.com",  
+      messagingSenderId: "747549154067",  
+      appId: "1:747549154067:web:xxxxxxxxxxxxx"  
+    };  
+  
+    const app = initializeApp(firebaseConfig);  
+    const db = getFirestore(app);  
+    const auth = getAuth(app);  
+    const tg = window.Telegram.WebApp;  
+    tg.ready();  
+  
+    signInAnonymously(auth).then(() => {  
+      onAuthStateChanged(auth, async (user) => {  
+        if (user) {  
+          const uid = user.uid;  
+          const ref = new URLSearchParams(window.location.search).get("ref");  
+          const userRef = doc(db, "users", uid);  
+          const docSnap = await getDoc(userRef);  
+  
+          if (!docSnap.exists()) {  
+            const newUser = {  
+              uid,  
+              name: tg.initDataUnsafe.user?.first_name || "Unknown",  
+              tg_id: tg.initDataUnsafe.user?.id || "N/A",  
+              cockroach_coin: 0,  
+              last_catch: 0,  
+              oggy_coin: 0,  
+              usd_balance: 0,  
+              referral_code: uid.substring(0, 6),  
+              referred_by: ref || null,  
+              referral_count: 0,  
+              created_at: Date.now()  
+            };  
+            await setDoc(userRef, newUser);  
+            if (ref) {  
+              const refUser = doc(db, "users", ref);  
+              const refSnap = await getDoc(refUser);  
+              if (refSnap.exists()) {  
+                await setDoc(refUser, {  
+                  referral_count: (refSnap.data().referral_count || 0) + 1  
+                }, { merge: true });  
+              }  
+            }  
+          }  
+  
+          const finalSnap = await getDoc(userRef);  
+          if (finalSnap.exists()) {  
+            const data = finalSnap.data();  
+            document.getElementById("userInfo").innerHTML = `  
+              <h2>${data.name}</h2>  
+              <p>Cockroach Caught: ${data.cockroach_coin || 0}</p>  
+              <p>Oggy Coin: ${data.oggy_coin || 0}</p>  
+              <p>USD: $${data.usd_balance || 0}</p>  
+              <p>Last Catch: ${data.last_catch || 0}</p>  
+              <p>Referral Count: ${data.referral_count || 0}</p>  
+            `;  
+            document.getElementById("refLink").value = window.location.origin + window.location.pathname + "?ref=" + data.uid;  
+          }  
+        }  
+      });  
+    });  
+  </script>  
+  
+</body>  
+</html> 
