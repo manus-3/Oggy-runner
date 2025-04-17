@@ -50,6 +50,50 @@
     console.error("Firebase Login Error:", error);
   });
 </script>
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDVlPYXeHPNLaYy8UQp8c_TQwvEidTuyf4",
+    authDomain: "oggy-runner.firebaseapp.com",
+    projectId: "oggy-runner",
+    storageBucket: "oggy-runner.appspot.com",
+    messagingSenderId: "747549154067",
+    appId: "1:747549154067:web:your_app_id_here"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  document.getElementById("userInfo").innerText = "Loading user info...";
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      const uid = user.uid;
+      const userRef = doc(db, "users", uid);
+      const docSnap = await getDoc(userRef);
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        document.getElementById("userInfo").innerHTML = `
+          <h2>${data.name}</h2>
+          <p>Cockroach Coin: ${data.cockroach_coin || 0}</p>
+          <p>Last Catch: ${data.last_catch || 0}</p>
+          <p>Oggy Coin: ${data.oggy_coin || 0}</p>
+          <p>Balance: $${data.usd_balance || 0}</p>
+          ${uid === "gpCtYc0dEMb4PTSqNjxJI57SPWU2" ? '<p><strong>Admin Panel</strong></p>' : ''}
+        `;
+      } else {
+        document.getElementById("userInfo").innerText = "User not found in Firestore.";
+      }
+    } else {
+      document.getElementById("userInfo").innerText = "User not logged in.";
+    }
+  });
+  </script>
   <!-- Monitag Ad -->
   <script src='//whephiwums.com/sdk.js' data-zone='9217711' data-sdk='show_9217711'></script>
 
