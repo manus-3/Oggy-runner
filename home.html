@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Oggy and the Cockroaches</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"></script>
@@ -23,7 +23,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
       height: 100vh;
       color: white;
       text-shadow: 1px 1px 2px black;
@@ -41,7 +41,7 @@
       color: white;
       border: none;
       border-radius: 15px;
-      margin: 10px 0;
+      margin: 20px 0;
       width: 85%;
       max-width: 300px;
     }
@@ -91,10 +91,6 @@
     .stat-item {
       margin: 5px 0;
       font-size: 14px;
-    }
-
-    a {
-      color: white;
     }
   </style>
 </head>
@@ -172,8 +168,8 @@
         }
 
         document.getElementById("refCode").innerText = uid;
-        const link = `https://oggy-runner.vercel.app/?ref=${uid}`;
-        document.getElementById("refLink").innerHTML = `<a href="${link}">${link}</a>`;
+        const link = `https://oggy-runner.vercel.app?ref=${uid}`;
+        document.getElementById("refLink").innerText = link;
       });
     });
 
@@ -188,7 +184,7 @@
       }
       setTimeout(() => {
         window.location.href = "game.html";
-      }, 18000); // 18 second delay
+      }, 18000); // 18 seconds
     }
 
     function goTo(page) {
@@ -196,4 +192,4 @@
     }
   </script>
 </body>
-</html>
+  </html>
