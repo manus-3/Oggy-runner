@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Oggy and the Cockroaches</title>
 
-  <!-- Firebase -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js"></script>
@@ -19,10 +19,9 @@
       padding: 0;
       background: url('https://lh3.googleusercontent.com/d/1-BWJ7G4A8JVhtOlIRCq6rGFz_4gY91wY') no-repeat center center fixed;
       background-size: cover;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: Arial, sans-serif;
       display: flex;
       flex-direction: column;
-      align-items: center;
       justify-content: space-between;
       height: 100vh;
       color: white;
@@ -30,50 +29,18 @@
     }
 
     h1 {
-      font-size: 24px;
-      margin-top: 20px;
+      text-align: center;
+      margin: 20px 0 10px;
     }
 
-    .ref-box, .stats-box {
-      background: rgba(0,0,0,0.5);
-      padding: 10px;
-      margin: 10px;
-      border-radius: 10px;
-      text-align: center;
+    .stats-box, .ref-box {
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 12px;
+      padding: 12px;
+      margin: 10px auto;
       width: 90%;
       max-width: 330px;
-    }
-
-    .copy-btn {
-      margin-top: 10px;
-      background: #28a745;
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    #bottomNav {
-      display: flex;
-      justify-content: space-around;
-      background: rgba(0,0,0,0.6);
-      padding: 10px;
-      width: 100%;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-    }
-
-    .nav-icon {
-      color: white;
       text-align: center;
-      font-size: 12px;
-      cursor: pointer;
-    }
-
-    .nav-icon:hover {
-      color: #00BFFF;
     }
 
     .stat-item {
@@ -81,19 +48,42 @@
       font-size: 14px;
     }
 
-    #playBtn {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: #ff7b00;
+    .copy-btn {
+      margin-top: 10px;
+      background: #4CAF50;
       color: white;
-      padding: 15px 30px;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #playBtn {
+      margin: 15px auto;
+      background-color: #ff5722;
+      color: white;
+      padding: 14px 30px;
       border: none;
       border-radius: 25px;
       font-size: 18px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      z-index: 1000;
+      display: block;
+    }
+
+    #bottomNav {
+      display: flex;
+      justify-content: space-around;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 10px 0;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+
+    .nav-icon {
+      color: white;
+      text-align: center;
+      font-size: 12px;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -111,10 +101,10 @@
 
   <div class="ref-box">
     <div>Your Referral Code:</div>
-    <div id="refCode" style="font-weight:bold;"></div>
-    <button class="copy-btn" onclick="copyCode()">Copy Now</button>
-    <p style="margin-top:10px;">Referral Link:</p>
-    <div id="refLink" style="font-size:12px;"></div>
+    <div id="refCode" style="font-weight: bold;"></div>
+    <button class="copy-btn" onclick="copyCode()">Copy Link</button>
+    <p style="margin-top: 10px;">Referral Link:</p>
+    <div id="refLink" style="font-size: 12px;"></div>
   </div>
 
   <button id="playBtn" onclick="showAdAndPlay()">Play Now</button>
@@ -128,11 +118,13 @@
   </div>
 
   <script>
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyDVlPYXeHPNLaYy8UQp8c_TQwvEidTuyf4",
       authDomain: "oggy-runner.firebaseapp.com",
       projectId: "oggy-runner",
     };
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const auth = firebase.auth();
@@ -144,10 +136,11 @@
     auth.signInAnonymously().then(() => {
       uid = auth.currentUser.uid;
       const userRef = db.collection("users").doc(uid);
+
       userRef.get().then((docSnap) => {
         if (!docSnap.exists) {
           userRef.set({
-            uid: uid,
+            uid,
             name: "Guest",
             created_at: Date.now(),
             cockroach_coin: 0,
@@ -171,8 +164,9 @@
           document.getElementById("last").innerText = data.last_catch || 0;
         }
 
+        // Update referral info
         document.getElementById("refCode").innerText = uid;
-        const link = `https://your-vercel-url.vercel.app?ref=${uid}`;
+        const link = `https://oggy-runner.vercel.app?ref=${uid}`;
         document.getElementById("refLink").innerText = link;
       });
     });
@@ -188,7 +182,7 @@
       }
       setTimeout(() => {
         window.location.href = "game.html";
-      }, 3500);
+      }, 18000); // 18 seconds
     }
 
     function goTo(page) {
