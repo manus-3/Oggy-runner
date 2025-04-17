@@ -23,7 +23,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
       height: 100vh;
       color: white;
       text-shadow: 1px 1px 2px black;
@@ -70,7 +70,7 @@
       display: flex;
       justify-content: space-around;
       background: rgba(0,0,0,0.6);
-      padding: 10px;
+      padding: 10px 0;
       width: 100%;
       position: fixed;
       bottom: 0;
@@ -84,21 +84,26 @@
       cursor: pointer;
     }
 
-    .nav-icon:hover {
-      color: #00BFFF;
+    .nav-icon img {
+      width: 24px;
+      height: 24px;
+      display: block;
+      margin: 0 auto 4px;
     }
 
     .stat-item {
       margin: 5px 0;
       font-size: 14px;
     }
+
+    .play-container {
+      margin-bottom: 80px;
+    }
   </style>
 </head>
 <body>
 
   <h1>Oggy's World</h1>
-
-  <button id="playBtn" onclick="showAdAndPlay()">Play Now</button>
 
   <div class="stats-box">
     <div class="stat-item">Cockroach Caught: <span id="cockroach">0</span></div>
@@ -115,12 +120,31 @@
     <div id="refLink" style="font-size:12px;"></div>
   </div>
 
+  <div class="play-container">
+    <button id="playBtn" onclick="showAdAndPlay()">Play Now</button>
+  </div>
+
   <div id="bottomNav">
-    <div class="nav-icon" onclick="goTo('index.html')">Home</div>
-    <div class="nav-icon" onclick="goTo('leaderboard.html')">Leaderboard</div>
-    <div class="nav-icon" onclick="goTo('withdraw.html')">Withdraw</div>
-    <div class="nav-icon" onclick="goTo('powerup.html')">Power Up</div>
-    <div class="nav-icon" onclick="goTo('tasks.html')">Daily Tasks</div>
+    <div class="nav-icon" onclick="goTo('index.html')">
+      <img src="https://cdn-icons-png.flaticon.com/128/1946/1946436.png" alt="Home">
+      Home
+    </div>
+    <div class="nav-icon" onclick="goTo('leaderboard.html')">
+      <img src="https://cdn-icons-png.flaticon.com/128/2583/2583313.png" alt="Leaderboard">
+      Leaderboard
+    </div>
+    <div class="nav-icon" onclick="goTo('withdraw.html')">
+      <img src="https://cdn-icons-png.flaticon.com/128/3596/3596093.png" alt="Withdraw">
+      Withdraw
+    </div>
+    <div class="nav-icon" onclick="goTo('powerup.html')">
+      <img src="https://cdn-icons-png.flaticon.com/128/8832/8832152.png" alt="Power Up">
+      Power Up
+    </div>
+    <div class="nav-icon" onclick="goTo('tasks.html')">
+      <img src="https://cdn-icons-png.flaticon.com/128/609/609803.png" alt="Daily Tasks">
+      Tasks
+    </div>
   </div>
 
   <script>
@@ -168,7 +192,7 @@
         }
 
         document.getElementById("refCode").innerText = uid;
-        const link = `https://your-vercel-url.vercel.app?ref=${uid}`;
+        const link = `${window.location.origin}?ref=${uid}`;
         document.getElementById("refLink").innerText = link;
       });
     });
@@ -182,9 +206,11 @@
       if (typeof show_9217711 === 'function') {
         show_9217711();
       }
+
+      // Wait 15 seconds minimum before redirect
       setTimeout(() => {
         window.location.href = "game.html";
-      }, 3500);
+      }, 15000);
     }
 
     function goTo(page) {
