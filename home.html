@@ -23,40 +23,15 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: space-between;
       height: 100vh;
       color: white;
       text-shadow: 1px 1px 2px black;
     }
 
     h1 {
-      font-size: 26px;
-      margin: 20px 0 10px;
-    }
-
-    .stats-box, .ref-box {
-      background: rgba(0,0,0,0.5);
-      padding: 12px;
-      margin: 10px 0;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 340px;
-      text-align: center;
-    }
-
-    .stat-item {
-      margin: 5px 0;
-      font-size: 15px;
-    }
-
-    .copy-btn {
-      margin-top: 8px;
-      background: #28a745;
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      cursor: pointer;
+      font-size: 24px;
+      margin-top: 20px;
     }
 
     #playBtn {
@@ -66,15 +41,35 @@
       color: white;
       border: none;
       border-radius: 15px;
-      margin-top: 14px;
+      margin: 10px 0;
       width: 85%;
       max-width: 300px;
+    }
+
+    .ref-box, .stats-box {
+      background: rgba(0,0,0,0.5);
+      padding: 10px;
+      margin: 10px;
+      border-radius: 10px;
+      text-align: center;
+      width: 90%;
+      max-width: 330px;
+    }
+
+    .copy-btn {
+      margin-top: 10px;
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      cursor: pointer;
     }
 
     #bottomNav {
       display: flex;
       justify-content: space-around;
-      background: rgba(0,0,0,0.7);
+      background: rgba(0,0,0,0.6);
       padding: 10px;
       width: 100%;
       position: fixed;
@@ -85,19 +80,21 @@
     .nav-icon {
       color: white;
       text-align: center;
-      font-size: 13px;
+      font-size: 12px;
+      cursor: pointer;
     }
 
-    .nav-icon img {
-      width: 24px;
-      height: 24px;
-      display: block;
-      margin: 0 auto 3px;
+    .nav-icon:hover {
+      color: #00BFFF;
     }
 
-    #usdBox {
-      margin-top: 6px;
-      font-weight: bold;
+    .stat-item {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+
+    a {
+      color: white;
     }
   </style>
 </head>
@@ -110,7 +107,6 @@
     <div class="stat-item">Oggy Coin: <span id="oggy">0</span></div>
     <div class="stat-item">Referral Count: <span id="refcount">0</span></div>
     <div class="stat-item">Last Catch: <span id="last">0</span></div>
-    <div class="stat-item" id="usdBox">USD from Leaderboard: $<span id="usd">0</span></div>
   </div>
 
   <div class="ref-box">
@@ -118,27 +114,17 @@
     <div id="refCode" style="font-weight:bold;"></div>
     <button class="copy-btn" onclick="copyCode()">Copy Now</button>
     <p style="margin-top:10px;">Referral Link:</p>
-    <div id="refLink" style="font-size:12px;word-wrap:break-word;"></div>
+    <div id="refLink" style="font-size:12px;"></div>
   </div>
 
   <button id="playBtn" onclick="showAdAndPlay()">Play Now</button>
 
   <div id="bottomNav">
-    <div class="nav-icon" onclick="goTo('index.html')">
-      <img src="https://cdn-icons-png.flaticon.com/512/25/25694.png"><div>Home</div>
-    </div>
-    <div class="nav-icon" onclick="goTo('leaderboard.html')">
-      <img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png"><div>Leaderboard</div>
-    </div>
-    <div class="nav-icon" onclick="goTo('withdraw.html')">
-      <img src="https://cdn-icons-png.flaticon.com/512/1042/1042337.png"><div>Withdraw</div>
-    </div>
-    <div class="nav-icon" onclick="goTo('powerup.html')">
-      <img src="https://cdn-icons-png.flaticon.com/512/3524/3524388.png"><div>Power Up</div>
-    </div>
-    <div class="nav-icon" onclick="goTo('tasks.html')">
-      <img src="https://cdn-icons-png.flaticon.com/512/833/833472.png"><div>Tasks</div>
-    </div>
+    <div class="nav-icon" onclick="goTo('index.html')">Home</div>
+    <div class="nav-icon" onclick="goTo('leaderboard.html')">Leaderboard</div>
+    <div class="nav-icon" onclick="goTo('withdraw.html')">Withdraw</div>
+    <div class="nav-icon" onclick="goTo('powerup.html')">Power Up</div>
+    <div class="nav-icon" onclick="goTo('tasks.html')">Daily Tasks</div>
   </div>
 
   <script>
@@ -158,7 +144,6 @@
     auth.signInAnonymously().then(() => {
       uid = auth.currentUser.uid;
       const userRef = db.collection("users").doc(uid);
-
       userRef.get().then((docSnap) => {
         if (!docSnap.exists) {
           userRef.set({
@@ -184,12 +169,11 @@
           document.getElementById("oggy").innerText = data.oggy_coin || 0;
           document.getElementById("refcount").innerText = data.referral_count || 0;
           document.getElementById("last").innerText = data.last_catch || 0;
-          document.getElementById("usd").innerText = data.usd_balance?.toFixed(2) || "0.00";
         }
 
         document.getElementById("refCode").innerText = uid;
-        const link = `https://oggy-runner.vercel.app?ref=${uid}`;
-        document.getElementById("refLink").innerText = link;
+        const link = `https://oggy-runner.vercel.app/?ref=${uid}`;
+        document.getElementById("refLink").innerHTML = `<a href="${link}">${link}</a>`;
       });
     });
 
@@ -198,13 +182,13 @@
       navigator.clipboard.writeText(link).then(() => alert("Referral link copied!"));
     }
 
-   function showAdAndPlay() {
-  if (typeof show_9217711 === 'function') {
-    show_9217711();
-  }
-  setTimeout(() => {
-    window.location.href = "game.html";
-  }, 18000); // 18 seconds = 18000 milliseconds
+    function showAdAndPlay() {
+      if (typeof show_9217711 === 'function') {
+        show_9217711();
+      }
+      setTimeout(() => {
+        window.location.href = "game.html";
+      }, 18000); // 18 second delay
     }
 
     function goTo(page) {
@@ -212,4 +196,4 @@
     }
   </script>
 </body>
-  </html>
+</html>
