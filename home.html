@@ -10,7 +10,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js"></script>
 
-  <!-- Ad Script -->
+  <!-- Ad -->
   <script src='//whephiwums.com/sdk.js' data-zone='9217711' data-sdk='show_9217711'></script>
 
   <style>
@@ -20,12 +20,12 @@
       background: url('https://lh3.googleusercontent.com/d/1-BWJ7G4A8JVhtOlIRCq6rGFz_4gY91wY') no-repeat center center fixed;
       background-size: cover;
       font-family: 'Segoe UI', sans-serif;
+      color: white;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: space-between;
       height: 100vh;
-      color: white;
       text-shadow: 1px 1px 2px black;
     }
 
@@ -41,7 +41,7 @@
       color: white;
       border: none;
       border-radius: 15px;
-      margin: 20px 0;
+      margin-bottom: 20px;
       width: 85%;
       max-width: 300px;
     }
@@ -66,6 +66,11 @@
       cursor: pointer;
     }
 
+    .stat-item {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+
     #bottomNav {
       display: flex;
       justify-content: space-around;
@@ -78,19 +83,19 @@
     }
 
     .nav-icon {
-      color: white;
       text-align: center;
       font-size: 12px;
-      cursor: pointer;
+      color: white;
+    }
+
+    .nav-icon img {
+      width: 30px;
+      height: 30px;
+      margin-bottom: 5px;
     }
 
     .nav-icon:hover {
       color: #00BFFF;
-    }
-
-    .stat-item {
-      margin: 5px 0;
-      font-size: 14px;
     }
   </style>
 </head>
@@ -102,6 +107,7 @@
     <div class="stat-item">Cockroach Caught: <span id="cockroach">0</span></div>
     <div class="stat-item">Oggy Coin: <span id="oggy">0</span></div>
     <div class="stat-item">Referral Count: <span id="refcount">0</span></div>
+    <div class="stat-item">USD Balance: $<span id="usd">0</span></div>
     <div class="stat-item">Last Catch: <span id="last">0</span></div>
   </div>
 
@@ -116,18 +122,33 @@
   <button id="playBtn" onclick="showAdAndPlay()">Play Now</button>
 
   <div id="bottomNav">
-    <div class="nav-icon" onclick="goTo('index.html')">Home</div>
-    <div class="nav-icon" onclick="goTo('leaderboard.html')">Leaderboard</div>
-    <div class="nav-icon" onclick="goTo('withdraw.html')">Withdraw</div>
-    <div class="nav-icon" onclick="goTo('powerup.html')">Power Up</div>
-    <div class="nav-icon" onclick="goTo('tasks.html')">Daily Tasks</div>
+    <div class="nav-icon" onclick="goTo('index.html')">
+      <img src="https://cdn-icons-png.flaticon.com/128/25/25694.png" />
+      Home
+    </div>
+    <div class="nav-icon" onclick="goTo('leaderboard.html')">
+      <img src="https://cdn-icons-png.flaticon.com/128/1828/1828884.png" />
+      Leaderboard
+    </div>
+    <div class="nav-icon" onclick="goTo('withdraw.html')">
+      <img src="https://cdn-icons-png.flaticon.com/128/9068/9068823.png" />
+      Withdraw
+    </div>
+    <div class="nav-icon" onclick="goTo('powerup.html')">
+      <img src="https://cdn-icons-png.flaticon.com/128/942/942751.png" />
+      Power Up
+    </div>
+    <div class="nav-icon" onclick="goTo('tasks.html')">
+      <img src="https://cdn-icons-png.flaticon.com/128/471/471664.png" />
+      Tasks
+    </div>
   </div>
 
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDVlPYXeHPNLaYy8UQp8c_TQwvEidTuyf4",
       authDomain: "oggy-runner.firebaseapp.com",
-      projectId: "oggy-runner",
+      projectId: "oggy-runner"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
@@ -140,10 +161,10 @@
     auth.signInAnonymously().then(() => {
       uid = auth.currentUser.uid;
       const userRef = db.collection("users").doc(uid);
-      userRef.get().then((docSnap) => {
+      userRef.get().then(docSnap => {
         if (!docSnap.exists) {
           userRef.set({
-            uid: uid,
+            uid,
             name: "Guest",
             created_at: Date.now(),
             cockroach_coin: 0,
@@ -164,18 +185,19 @@
           document.getElementById("cockroach").innerText = data.cockroach_coin || 0;
           document.getElementById("oggy").innerText = data.oggy_coin || 0;
           document.getElementById("refcount").innerText = data.referral_count || 0;
+          document.getElementById("usd").innerText = data.usd_balance?.toFixed(2) || "0.00";
           document.getElementById("last").innerText = data.last_catch || 0;
         }
 
         document.getElementById("refCode").innerText = uid;
-        const link = `https://oggy-runner.vercel.app?ref=${uid}`;
-        document.getElementById("refLink").innerText = link;
+        const refLink = `https://oggy-runner.vercel.app?ref=${uid}`;
+        document.getElementById("refLink").innerText = refLink;
       });
     });
 
     function copyCode() {
-      const link = document.getElementById("refLink").innerText;
-      navigator.clipboard.writeText(link).then(() => alert("Referral link copied!"));
+      const text = document.getElementById("refLink").innerText;
+      navigator.clipboard.writeText(text).then(() => alert("Referral link copied!"));
     }
 
     function showAdAndPlay() {
