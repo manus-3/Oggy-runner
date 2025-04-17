@@ -10,7 +10,7 @@
       margin: 0;
       padding: 0;
       font-family: 'Arial', sans-serif;
-      background: url('https://lh3.googleusercontent.com/d/1-BWJ7G4A8JVhtOlIRCq6rGFz_4gY91wY') no-repeat center center;
+      background: url('https://drive.google.com/uc?export=view&id=1-BWJ7G4A8JVhtOlIRCq6rGFz_4gY91wY') no-repeat center center;
       background-size: cover;
       color: white;
     }
@@ -75,21 +75,11 @@
   </div>
 
   <div class="bottom-nav">
-    <a href="index.html">
-      <img src="https://lh3.googleusercontent.com/d/1yxgaMHpBJ5PbwaZ5KcKKoJTVwexmMcg3" alt="Home">
-    </a>
-    <a href="withdraw.html">
-      <img src="https://lh3.googleusercontent.com/d/1cEyXsfdHq47hNhc1aYmvAjZLE3hN6HDW" alt="Withdraw">
-    </a>
-    <a href="powerup.html">
-      <img src="https://lh3.googleusercontent.com/d/1V7tZub4x4RThN6-vU9AtJ6HRN6znO_Ea" alt="Powerup">
-    </a>
-    <a href="tasks.html">
-      <img src="https://lh3.googleusercontent.com/d/1Ln_E0j1WyQ_CUu3_iISsFaA-4aUArSH9" alt="Tasks">
-    </a>
-    <a href="leaderboard.html">
-      <img src="https://lh3.googleusercontent.com/d/1O8kHqYFhKRq_5XhMj-A6shPgU-J-LYOc" alt="Leaderboard">
-    </a>
+    <a href="index.html"><img src="https://drive.google.com/uc?export=view&id=1O8kHqYFhKRq_5XhMj-A6shPgU-J-LYOc" alt="Home"></a>
+    <a href="withdraw.html"><img src="https://drive.google.com/uc?export=view&id=1XXMnZ1QYOvMQLKtEoJ8H7fxlVZ9DEHgY" alt="Withdraw"></a>
+    <a href="powerup.html"><img src="https://drive.google.com/uc?export=view&id=1SxyUVJ5DNImRzG_EuGmGEUjcPZf2WyoG" alt="Powerup"></a>
+    <a href="tasks.html"><img src="https://drive.google.com/uc?export=view&id=1MAkduzFZEEf2IYgATYZ2PNSWvmJDjl9q" alt="Tasks"></a>
+    <a href="leaderboard.html"><img src="https://drive.google.com/uc?export=view&id=1EP4xW88uXf8j0tbGmf6ZhF-v3EmWcz_G" alt="Leaderboard"></a>
   </div>
 
   <script>
@@ -102,13 +92,10 @@
 
     function showAdAndPlay() {
       if (typeof show_9217711 === 'function') {
-        show_9217711();
-        const interval = setInterval(() => {
-          if (!document.querySelector('iframe')) {
-            clearInterval(interval);
-            window.location.href = 'game.html';
-          }
-        }, 1000);
+        show_9217711(); // Show ad
+        setTimeout(() => {
+          window.location.href = 'game.html';
+        }, 8000); // Wait 8 seconds
       } else {
         window.location.href = 'game.html';
       }
@@ -188,6 +175,5 @@
       });
     });
   </script>
-
 </body>
       </html>
