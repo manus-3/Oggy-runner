@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -11,6 +11,16 @@
       background: url('https://lh3.googleusercontent.com/d/1-BWJ7G4A8JVhtOlIRCq6rGFz_4gY91wY=w1600') no-repeat center center fixed;
       background-size: cover;
       font-family: 'Arial', sans-serif;
+      color: white;
+    }
+    .stats {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0,0,0,0.6);
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 1em;
     }
     .lobby-container {
       position: absolute;
@@ -36,8 +46,70 @@
   </style>
 </head>
 <body>
-  <div class="lobby-container">
-    <button class="play-btn" onclick="location.href='game.html'">Play Now</button>
+
+  <div class="stats">
+    <div>Weekly Cockroach Coin: <span id="weeklyCoins">Loading...</span></div>
+    <div>Total Cockroach Caught: <span id="totalCaught">Loading...</span></div>
+    <div>Last Cockroach Caught: <span id="lastCaught">Loading...</span></div>
+    <div>Oggy Coin: <span id="oggyCoin">Loading...</span></div>
+    <div>Balance: $<span id="balance">Loading...</span></div>
   </div>
+
+  <div class="lobby-container">
+    <button class="play-btn" onclick="showAdThenPlay()">Play Now</button>
+  </div>
+
+  <script src='//whephiwums.com/sdk.js' data-zone='9217711' data-sdk='show_9217711'></script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDVlPYXeHPNLaYy8UQp8c_TQwvEidTuyf4",
+      authDomain: "oggy-runner.firebaseapp.com",
+      projectId: "oggy-runner",
+      storageBucket: "oggy-runner.appspot.com",
+      messagingSenderId: "747549154067",
+      appId: "1:747549154067:web:xxxxxxxxxxxxxxx",
+      databaseURL: "https://oggy-runner-default-rtdb.firebaseio.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth();
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const uid = user.uid;
+        const userRef = ref(db, 'users/' + uid);
+
+        get(userRef).then(snapshot => {
+          if (snapshot.exists()) {
+            const data = snapshot.val();
+            document.getElementById("weeklyCoins").textContent = data.weeklyCockroachCoin ?? 0;
+            document.getElementById("totalCaught").textContent = data.totalCockroachCaught ?? 0;
+            document.getElementById("lastCaught").textContent = data.lastCockroachCaught ?? 0;
+            document.getElementById("oggyCoin").textContent = data.oggyCoin ?? 0;
+            document.getElementById("balance").textContent = data.usdBalance?.toFixed(2) ?? "0.00";
+          } else {
+            alert("User data not found.");
+          }
+        });
+      } else {
+        alert("Please login first.");
+      }
+    });
+
+    function showAdThenPlay() {
+      if (typeof show_9217711 === 'function') {
+        show_9217711();
+      }
+      setTimeout(() => {
+        window.location.href = 'game.html';
+      }, 5000);
+    }
+  </script>
 </body>
 </html>
