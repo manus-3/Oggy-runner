@@ -4,7 +4,7 @@
   <title>Oggy and the Cockroaches</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://whephiwums.com/sdk.js" data-zone="9229431" data-sdk="show_9229431"></script>
+  <script src="https://whephiwums.com/sdk.js" data-zone="9217711" data-sdk="show_9217711"></script>
   <style>
     body {
       margin: 0;
@@ -27,7 +27,6 @@
       border: none;
       border-radius: 10px;
       margin-top: 30px;
-      cursor: pointer;
     }
     .nav-bar {
       position: fixed;
@@ -70,6 +69,7 @@
     <button class="button" onclick="showAdThenPlay()">Play Now</button>
   </div>
 
+  <!-- Bottom Navigation Bar -->
   <div class="nav-bar">
     <button onclick="window.location.href='home.html'" class="nav-button">
       <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png">
@@ -117,6 +117,7 @@
         if (user) {
           const uid = user.uid;
           const ref = new URLSearchParams(window.location.search).get("ref") || "";
+
           const userRef = doc(db, "users", uid);
           const docSnap = await getDoc(userRef);
 
@@ -160,11 +161,9 @@
         }
       });
     });
-  </script>
 
-  <!-- Global Ad Function -->
-  <script>
-    function showAdThenPlay() {
+    // Ad Show before game
+    window.showAdThenPlay = function () {
       let played = false;
       try {
         if (typeof _whephiwums !== 'undefined') {
@@ -172,21 +171,14 @@
             played = true;
             window.location.href = 'game.html';
           });
-        } else {
-          console.warn("Ad SDK not loaded.");
-          window.location.href = 'game.html';
         }
       } catch (e) {
         console.log("Ad error:", e);
-        window.location.href = 'game.html';
       }
       setTimeout(() => {
-        if (!played) {
-          console.log("Ad fallback after 8s.");
-          window.location.href = 'game.html';
-        }
-      }, 8000);
+        if (!played) window.location.href = 'game.html';
+      }, 10000);
     }
   </script>
 </body>
-</html>
+  </html>
