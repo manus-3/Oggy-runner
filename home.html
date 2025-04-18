@@ -46,6 +46,7 @@
       background: none;
       color: white;
       font-size: 12px;
+      cursor: pointer;
     }
     .nav-button img {
       width: 24px;
@@ -61,34 +62,35 @@
   </style>
 </head>
 <body>
+  <!-- Ad at the top -->
+  <script src='//whephiwums.com/sdk.js' data-zone='9217711' data-sdk='show_9217711'></script>
+
   <div class="content">
     <h1>Oggy and the Cockroaches</h1>
-
     <div class="user-info" id="userInfo">Loading...</div>
-
-    <button class="button" onclick="window.location.href='game.html'">Play Now</button>
+    <button class="button" onclick="showAdThenPlay()">Play Now</button>
   </div>
 
   <!-- Bottom Navigation Bar -->
   <div class="nav-bar">
-    <button onclick="goTo('lobby')" class="nav-button">
-      <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" alt="Home">
+    <button onclick="navigate('lobby.html')" class="nav-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png">
       <span>Home</span>
     </button>
-    <button onclick="goTo('referral')" class="nav-button">
-      <img src="https://cdn-icons-png.flaticon.com/512/929/929610.png" alt="Refer">
+    <button onclick="navigate('referral.html')" class="nav-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/929/929610.png">
       <span>Refer Now</span>
     </button>
-    <button onclick="goTo('withdraw')" class="nav-button">
-      <img src="https://cdn-icons-png.flaticon.com/512/1041/1041872.png" alt="Withdraw">
+    <button onclick="navigate('withdraw.html')" class="nav-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/1041/1041872.png">
       <span>Withdraw</span>
     </button>
-    <button onclick="goTo('powerup')" class="nav-button">
-      <img src="https://cdn-icons-png.flaticon.com/512/189/189665.png" alt="Power Up">
+    <button onclick="navigate('powerup.html')" class="nav-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/189/189665.png">
       <span>Power Up</span>
     </button>
-    <button onclick="goTo('leaderboard')" class="nav-button">
-      <img src="https://cdn-icons-png.flaticon.com/512/992/992700.png" alt="Leaderboard">
+    <button onclick="navigate('leaderboard.html')" class="nav-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/992/992700.png">
       <span>Leaderboard</span>
     </button>
   </div>
@@ -106,7 +108,7 @@
       projectId: "oggy-runner",
       storageBucket: "oggy-runner.appspot.com",
       messagingSenderId: "747549154067",
-      appId: "1:747549154067:web:xxxxx"
+      appId: "1:747549154067:web:xxxxxx"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -119,7 +121,7 @@
       onAuthStateChanged(auth, async (user) => {
         if (user) {
           const uid = user.uid;
-          const referralFromUrl = new URLSearchParams(window.location.search).get("ref") || "";
+          const ref = new URLSearchParams(window.location.search).get("ref") || "";
 
           const userRef = doc(db, "users", uid);
           const docSnap = await getDoc(userRef);
@@ -134,18 +136,20 @@
               last_catch: 0,
               oggy_coin: 0,
               usd_balance: 0,
-              referral_code: uid.substring(0, 6),
+              referral_code: uid.slice(0, 6),
               referral_count: 0,
-              referred_by: referralFromUrl
+              referred_by: ref
             };
             await setDoc(userRef, newUser);
-            
-            if (referralFromUrl) {
-              const refUserRef = doc(db, "users", referralFromUrl);
+
+            if (ref) {
+              const refUserRef = doc(db, "users", ref);
               const refSnap = await getDoc(refUserRef);
               if (refSnap.exists()) {
                 const refData = refSnap.data();
-                await setDoc(refUserRef, { referral_count: (refData.referral_count || 0) + 1 }, { merge: true });
+                await setDoc(refUserRef, {
+                  referral_count: (refData.referral_count || 0) + 1
+                }, { merge: true });
               }
             }
           }
@@ -162,12 +166,24 @@
           `;
         }
       });
-    }).catch((error) => {
-      console.error("Auth error:", error);
     });
 
-    function goTo(page) {
-      window.location.href = page + ".html";
+    function navigate(page) {
+      showAdThen(() => window.location.href = page);
+    }
+
+    function showAdThenPlay() {
+      showAdThen(() => window.location.href = 'game.html');
+    }
+
+    function showAdThen(callback) {
+      if (typeof _whephiwums !== 'undefined') {
+        _whephiwums.push(function() {
+          callback();
+        });
+      } else {
+        callback();
+      }
     }
   </script>
 </body>
