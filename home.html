@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html><html>
 <head>
   <title>Oggy and the Cockroaches</title>
   <meta charset="UTF-8">
@@ -67,10 +66,7 @@
     <h1></h1>
     <div class="user-info" id="userInfo">Loading...</div>
     <button class="button" onclick="showAdThenPlay()">Play Now</button>
-  </div>
-
-  <!-- Bottom Navigation Bar -->
-  <div class="nav-bar">
+  </div>  <!-- Bottom Navigation Bar -->  <div class="nav-bar">
     <button onclick="window.location.href='home.html'" class="nav-button">
       <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png">
       <span>Home</span>
@@ -91,36 +87,32 @@
       <img src="https://cdn-icons-png.flaticon.com/512/992/992700.png">
       <span>Leaderboard</span>
     </button>
-  </div>
-
-  <!-- Firebase & Telegram -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script type="module">
+  </div>  <!-- Firebase & Telegram -->  <script src="https://telegram.org/js/telegram-web-app.js"></script>  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
+  
     const firebaseConfig = {
-      apiKey: "AIzaSyDVlPYXeHPNLaYy8UQp8c_TQwvEidTuyf4",
+      apiKey: "AIzaSyDVlPYXeHPNLaYy8Uq8c_TQwvEidTuyf4",
       authDomain: "oggy-runner.firebaseapp.com",
       projectId: "oggy-runner",
     };
-
+  
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
     const tg = window.Telegram.WebApp;
     tg.ready();
-
+  
     signInAnonymously(auth).then(() => {
       onAuthStateChanged(auth, async (user) => {
         if (user) {
           const uid = user.uid;
           const ref = new URLSearchParams(window.location.search).get("ref") || "";
-
+  
           const userRef = doc(db, "users", uid);
           const docSnap = await getDoc(userRef);
-
+  
           if (!docSnap.exists()) {
             const newUser = {
               uid: uid,
@@ -136,7 +128,7 @@
               referred_by: ref
             };
             await setDoc(userRef, newUser);
-
+  
             if (ref) {
               const refUserRef = doc(db, "users", ref);
               const refSnap = await getDoc(refUserRef);
@@ -148,7 +140,7 @@
               }
             }
           }
-
+  
           const userDoc = await getDoc(userRef);
           const data = userDoc.data();
           document.getElementById("userInfo").innerHTML = `
@@ -161,24 +153,30 @@
         }
       });
     });
-
-    // Ad Show before game
-    window.showAdThenPlay = function () {
-      let played = false;
-      try {
-        if (typeof _whephiwums !== 'undefined') {
-          _whephiwums.show(function () {
-            played = true;
-            window.location.href = 'game.html';
-          });
-        }
-      } catch (e) {
-        console.log("Ad error:", e);
-      }
-      setTimeout(() => {
-        if (!played) window.location.href = 'game.html';
-      }, 10000);
-    }
-  </script>
-</body>
-  </html>
+  
+    // Ad Show before game  
+    window.showAdThenPlay = function () {  
+      let played = false;  
+  
+      // SDK লোড আছে কি চেক করুন  
+      if (window._whephiwums && Array.isArray(_whephiwums.push)) {  
+        // প্রয়োজন অনুযায়ী জোন সেট করুন  
+        _whephiwums.push(['zone', 9217711]);  
+  
+        // অ্যাড দেখান এবং শেষে গেম লোড করুন  
+        _whephiwums.push(['show', function () {  
+          played = true;  
+          window.location.href = 'game.html';  
+        }]);  
+      } else {  
+        console.warn('Ad SDK not loaded, সরাসরি প্লে পেজে যাচ্ছে…');  
+        window.location.href = 'game.html';  
+      }  
+  
+      // ১০ সেকেন্ডে অ্যাড না গেলে সরাসরি প্লে পেজে  
+      setTimeout(() => {  
+        if (!played) window.location.href = 'game.html';  
+      }, 10000);  
+    }  
+  </script></body>
+</html>
