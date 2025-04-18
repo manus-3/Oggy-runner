@@ -64,37 +64,38 @@
 </head>
 <body>
 <div class="content">
-    <h1>Oggy and the Cockroaches</h1>
+    <h1></h1>
     <div class="user-info" id="userInfo">Loading...</div>
     <button class="button" onclick="showAdThenPlay()">Play Now</button>
 </div>
-  
   <script>
   function showAdThenPlay() {
-    let redirected = false;
+    let adShown = false;
 
-    function goToGame() {
-      if (!redirected) {
-        redirected = true;
+    // Try to show ad via SDK
+    try {
+      if (typeof _whephiwums !== "undefined" && _whephiwums.push) {
+        _whephiwums.push(function () {
+          adShown = true;
+          console.log("Ad finished, going to game.html");
+          window.location.href = "game.html";
+        });
+
+        // Fallback: wait max 10 seconds
+        setTimeout(function () {
+          if (!adShown) {
+            console.log("Ad timeout, going to game.html");
+            window.location.href = "game.html";
+          }
+        }, 18000);
+      } else {
+        console.warn("Ad SDK not loaded, skipping ad...");
         window.location.href = "game.html";
       }
-    }
-
-    try {
-      if (typeof _whephiwums !== "undefined") {
-        _whephiwums.push(function () {
-          goToGame();
-        });
-      } else {
-        setTimeout(goToGame, 18000); // fallback
-      }
     } catch (e) {
-      console.error("Ad SDK Error:", e);
-      setTimeout(goToGame, 4000); // fallback
+      console.error("Error showing ad:", e);
+      window.location.href = "game.html";
     }
-
-    // fallback timeout in case SDK doesn't respond
-    setTimeout(goToGame, 6000);
   }
   </script>
   <!-- Bottom Navigation Bar -->
@@ -205,7 +206,7 @@
       }
       setTimeout(() => {
         if (!played) window.location.href = 'game.html';
-      }, 18000); // fallback after 4 sec
+      }, 18000); // fallback after 18 sec
     }
   </script>
 </body>
