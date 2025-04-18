@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Oggy and the Cockroaches</title>
+  <title></title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src='//whephiwums.com/sdk.js' data-zone='9217711' data-sdk='show_9217711'></script>
@@ -64,15 +64,37 @@
 </head>
 <body>
 
-  <div class="content">
-    <h1>Oggy and the Cockroaches</h1>
-    <div class="user-info" id="userInfo">Loading...</div>
-    <button class="button" onclick="showAdThenPlay()">Play Now</button>
-  </div>
+  <script>
+  function showAdThenPlay() {
+    let redirected = false;
 
+    function goToGame() {
+      if (!redirected) {
+        redirected = true;
+        window.location.href = "game.html";
+      }
+    }
+
+    try {
+      if (typeof _whephiwums !== "undefined") {
+        _whephiwums.push(function () {
+          goToGame();
+        });
+      } else {
+        setTimeout(goToGame, 18000); // fallback
+      }
+    } catch (e) {
+      console.error("Ad SDK Error:", e);
+      setTimeout(goToGame, 4000); // fallback
+    }
+
+    // fallback timeout in case SDK doesn't respond
+    setTimeout(goToGame, 6000);
+  }
+  </script>
   <!-- Bottom Navigation Bar -->
   <div class="nav-bar">
-    <button onclick="window.location.href='lobby.html'" class="nav-button">
+    <button onclick="window.location.href='home.html'" class="nav-button">
       <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png">
       <span>Home</span>
     </button>
