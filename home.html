@@ -68,6 +68,46 @@
     <div class="user-info" id="userInfo">Loading...</div>
     <button class="button" onclick="showAdThenPlay()">Play Now</button>
 </div>
+  <!-- Play Now Button -->
+<button class="button" onclick="showAdThenPlay()">Play Now</button>
+
+<!-- Ad SDK -->
+<script src="https://whephiwums.com/sdk.js" data-zone="9217711" data-sdk="show_9217711"></script>
+
+<script>
+  function showAdThenPlay() {
+    let redirected = false;
+
+    function goToGame() {
+      if (!redirected) {
+        redirected = true;
+        window.location.href = "game.html";
+      }
+    }
+
+    // Check if SDK loaded
+    if (typeof _whephiwums !== "undefined" && typeof _whephiwums.push === "function") {
+      _whephiwums.push(function () {
+        // Ad shown callback will trigger game start
+        goToGame();
+      });
+
+      // Show ad manually if needed (depends on SDK behavior)
+      try {
+        _whephiwums.show();
+      } catch (e) {
+        console.warn("Manual ad show fallback failed:", e);
+        setTimeout(goToGame, 4000); // fallback
+      }
+    } else {
+      console.warn("Ad SDK not ready, fallback in 4s...");
+      setTimeout(goToGame, 4000); // fallback
+    }
+
+    // Just in case ad never responds
+    setTimeout(goToGame, 8000);
+  }
+</script>
   <script>
   function showAdThenPlay() {
     let adShown = false;
