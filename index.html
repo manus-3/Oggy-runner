@@ -6,12 +6,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
+      margin: 0;
       background: url('https://lh3.googleusercontent.com/d/1-BWJ7G4A8JVhtOlIRCq6rGFz_4gY91wY') no-repeat center center fixed;
       background-size: cover;
       font-family: Arial, sans-serif;
       color: white;
+      overflow-y: auto;
+      padding-bottom: 100px;
+    }
+    .content {
+      padding: 20px;
       text-align: center;
-      padding-bottom: 80px;
     }
     .button {
       background-color: #1e88e5;
@@ -20,7 +25,7 @@
       font-size: 20px;
       border: none;
       border-radius: 10px;
-      margin-top: 20px;
+      margin-top: 30px;
     }
     .nav-bar {
       position: fixed;
@@ -53,142 +58,117 @@
       padding: 10px;
       border-radius: 10px;
     }
-    .referral-box {
-      margin-top: 15px;
-      background-color: rgba(255,255,255,0.1);
-      padding: 10px;
-      border-radius: 10px;
-    }
   </style>
 </head>
 <body>
+  <div class="content">
+    <h1>Oggy and the Cockroaches</h1>
 
-<h1>Oggy and the Cockroaches</h1>
+    <div class="user-info" id="userInfo">Loading...</div>
 
-<button class="button" onclick="window.location.href='game.html'">Play Now</button>
+    <button class="button" onclick="window.location.href='game.html'">Play Now</button>
+  </div>
 
-<div class="user-info" id="userInfo">Loading...</div>
+  <!-- Bottom Navigation Bar -->
+  <div class="nav-bar">
+    <button onclick="goTo('lobby')" class="nav-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" alt="Home">
+      <span>Home</span>
+    </button>
+    <button onclick="goTo('referral')" class="nav-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/929/929610.png" alt="Refer">
+      <span>Refer Now</span>
+    </button>
+    <button onclick="goTo('withdraw')" class="nav-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/1041/1041872.png" alt="Withdraw">
+      <span>Withdraw</span>
+    </button>
+    <button onclick="goTo('powerup')" class="nav-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/189/189665.png" alt="Power Up">
+      <span>Power Up</span>
+    </button>
+    <button onclick="goTo('leaderboard')" class="nav-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/992/992700.png" alt="Leaderboard">
+      <span>Leaderboard</span>
+    </button>
+  </div>
 
-<div class="referral-box" id="referralBox" style="display: none;">
-  <p>Your Referral Code:</p>
-  <h3 id="refCode"></h3>
-  <button onclick="copyReferral()">Copy Now</button>
-</div>
+  <!-- Firebase & Telegram -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-<!-- Bottom Navigation Bar -->
-<div class="nav-bar">
-  <button onclick="goTo('home')" class="nav-button">
-    <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" alt="Home">
-    <span>Home</span>
-  </button>
-  <button onclick="goTo('referral')" class="nav-button">
-    <img src="https://cdn-icons-png.flaticon.com/512/929/929610.png" alt="Refer">
-    <span>Refer Now</span>
-  </button>
-  <button onclick="goTo('withdraw')" class="nav-button">
-    <img src="https://cdn-icons-png.flaticon.com/512/1041/1041872.png" alt="Withdraw">
-    <span>Withdraw</span>
-  </button>
-  <button onclick="goTo('powerup')" class="nav-button">
-    <img src="https://cdn-icons-png.flaticon.com/512/189/189665.png" alt="Power Up">
-    <span>Power Up</span>
-  </button>
-  <button onclick="goTo('leaderboard')" class="nav-button">
-    <img src="https://cdn-icons-png.flaticon.com/512/992/992700.png" alt="Leaderboard">
-    <span>Leaderboard</span>
-  </button>
-</div>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDVlPYXeHPNLaYy8UQp8c_TQwvEidTuyf4",
+      authDomain: "oggy-runner.firebaseapp.com",
+      projectId: "oggy-runner",
+      storageBucket: "oggy-runner.appspot.com",
+      messagingSenderId: "747549154067",
+      appId: "1:747549154067:web:xxxxx"
+    };
 
-<!-- Telegram & Firebase -->
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const tg = window.Telegram.WebApp;
+    tg.ready();
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDVlPYXeHPNLaYy8UQp8c_TQwvEidTuyf4",
-    authDomain: "oggy-runner.firebaseapp.com",
-    projectId: "oggy-runner",
-    storageBucket: "oggy-runner.appspot.com",
-    messagingSenderId: "747549154067",
-    appId: "1:747549154067:web:xxxxx"
-  };
+    signInAnonymously(auth).then(() => {
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          const uid = user.uid;
+          const referralFromUrl = new URLSearchParams(window.location.search).get("ref") || "";
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const tg = window.Telegram.WebApp;
-  tg.ready();
+          const userRef = doc(db, "users", uid);
+          const docSnap = await getDoc(userRef);
 
-  signInAnonymously(auth).then(() => {
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const uid = user.uid;
-        const referralFromUrl = new URLSearchParams(window.location.search).get("ref") || "";
-
-        const userRef = doc(db, "users", uid);
-        const docSnap = await getDoc(userRef);
-
-        if (!docSnap.exists()) {
-          const newUser = {
-            uid: uid,
-            name: tg.initDataUnsafe.user?.first_name || "Unknown",
-            tg_id: tg.initDataUnsafe.user?.id || "N/A",
-            created_at: Date.now(),
-            cockroach_coin: 0,
-            last_catch: 0,
-            oggy_coin: 0,
-            usd_balance: 0,
-            referral_code: uid.substring(0, 6),
-            referral_count: 0,
-            referred_by: referralFromUrl
-          };
-          await setDoc(userRef, newUser);
-          
-          if (referralFromUrl) {
-            const refUserRef = doc(db, "users", referralFromUrl);
-            const refSnap = await getDoc(refUserRef);
-            if (refSnap.exists()) {
-              const refData = refSnap.data();
-              await setDoc(refUserRef, { referral_count: (refData.referral_count || 0) + 1 }, { merge: true });
+          if (!docSnap.exists()) {
+            const newUser = {
+              uid: uid,
+              name: tg.initDataUnsafe.user?.first_name || "Unknown",
+              tg_id: tg.initDataUnsafe.user?.id || "N/A",
+              created_at: Date.now(),
+              cockroach_coin: 0,
+              last_catch: 0,
+              oggy_coin: 0,
+              usd_balance: 0,
+              referral_code: uid.substring(0, 6),
+              referral_count: 0,
+              referred_by: referralFromUrl
+            };
+            await setDoc(userRef, newUser);
+            
+            if (referralFromUrl) {
+              const refUserRef = doc(db, "users", referralFromUrl);
+              const refSnap = await getDoc(refUserRef);
+              if (refSnap.exists()) {
+                const refData = refSnap.data();
+                await setDoc(refUserRef, { referral_count: (refData.referral_count || 0) + 1 }, { merge: true });
+              }
             }
           }
+
+          const userDoc = await getDoc(userRef);
+          const data = userDoc.data();
+          document.getElementById("userInfo").innerHTML = `
+            <p><strong>${data.name}</strong></p>
+            <p>Cockroach: ${data.cockroach_coin}</p>
+            <p>Oggy Coin: ${data.oggy_coin}</p>
+            <p>Balance: $${data.usd_balance}</p>
+            <p>Referred By: ${data.referred_by || 'None'}</p>
+            <p>Referrals: ${data.referral_count || 0}</p>
+          `;
         }
-
-        const userDoc = await getDoc(userRef);
-        const data = userDoc.data();
-        document.getElementById("userInfo").innerHTML = `
-          <p><strong>${data.name}</strong></p>
-          <p>Cockroach: ${data.cockroach_coin}</p>
-          <p>Oggy Coin: ${data.oggy_coin}</p>
-          <p>Balance: $${data.usd_balance}</p>
-          <p>Referred By: ${data.referred_by || 'None'}</p>
-          <p>Referrals: ${data.referral_count || 0}</p>
-        `;
-        document.getElementById("referralBox").style.display = "block";
-        document.getElementById("refCode").innerText = uid.substring(0, 6);
-      }
+      });
+    }).catch((error) => {
+      console.error("Auth error:", error);
     });
-  }).catch((error) => {
-    console.error("Auth error:", error);
-  });
 
-  function copyReferral() {
-    const refCode = document.getElementById("refCode").innerText;
-    navigator.clipboard.writeText(refCode).then(() => {
-      alert("Referral Code Copied!");
-    });
-  }
-
-  function goTo(page) {
-    if (page === 'home') window.location.href = "lobby.html";
-    else window.location.href = page + ".html";
-  }
-</script>
-
-<!-- Ad Show -->
-<script src='//whephiwums.com/sdk.js' data-zone='9217711' data-sdk='show_9217711'></script>
-
+    function goTo(page) {
+      window.location.href = page + ".html";
+    }
+  </script>
 </body>
-  </html>
+</html>
