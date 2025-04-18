@@ -4,6 +4,7 @@
   <title>Oggy and the Cockroaches</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src='//whephiwums.com/sdk.js' data-zone='9217711' data-sdk='show_9217711'></script>
   <style>
     body {
       margin: 0;
@@ -62,8 +63,6 @@
   </style>
 </head>
 <body>
-  <!-- Ad at the top -->
-  <script src='//whephiwums.com/sdk.js' data-zone='9217711' data-sdk='show_9217711'></script>
 
   <div class="content">
     <h1>Oggy and the Cockroaches</h1>
@@ -73,23 +72,23 @@
 
   <!-- Bottom Navigation Bar -->
   <div class="nav-bar">
-    <button onclick="navigate('lobby.html')" class="nav-button">
+    <button onclick="window.location.href='lobby.html'" class="nav-button">
       <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png">
       <span>Home</span>
     </button>
-    <button onclick="navigate('referral.html')" class="nav-button">
+    <button onclick="window.location.href='referral.html'" class="nav-button">
       <img src="https://cdn-icons-png.flaticon.com/512/929/929610.png">
       <span>Refer Now</span>
     </button>
-    <button onclick="navigate('withdraw.html')" class="nav-button">
+    <button onclick="window.location.href='withdraw.html'" class="nav-button">
       <img src="https://cdn-icons-png.flaticon.com/512/1041/1041872.png">
       <span>Withdraw</span>
     </button>
-    <button onclick="navigate('powerup.html')" class="nav-button">
+    <button onclick="window.location.href='powerup.html'" class="nav-button">
       <img src="https://cdn-icons-png.flaticon.com/512/189/189665.png">
       <span>Power Up</span>
     </button>
-    <button onclick="navigate('leaderboard.html')" class="nav-button">
+    <button onclick="window.location.href='leaderboard.html'" class="nav-button">
       <img src="https://cdn-icons-png.flaticon.com/512/992/992700.png">
       <span>Leaderboard</span>
     </button>
@@ -106,9 +105,6 @@
       apiKey: "AIzaSyDVlPYXeHPNLaYy8UQp8c_TQwvEidTuyf4",
       authDomain: "oggy-runner.firebaseapp.com",
       projectId: "oggy-runner",
-      storageBucket: "oggy-runner.appspot.com",
-      messagingSenderId: "747549154067",
-      appId: "1:747549154067:web:xxxxxx"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -161,29 +157,28 @@
             <p>Cockroach: ${data.cockroach_coin}</p>
             <p>Oggy Coin: ${data.oggy_coin}</p>
             <p>Balance: $${data.usd_balance}</p>
-            <p>Referred By: ${data.referred_by || 'None'}</p>
             <p>Referrals: ${data.referral_count || 0}</p>
           `;
         }
       });
     });
 
-    function navigate(page) {
-      showAdThen(() => window.location.href = page);
-    }
-
+    // Ad Show before game
     function showAdThenPlay() {
-      showAdThen(() => window.location.href = 'game.html');
-    }
-
-    function showAdThen(callback) {
-      if (typeof _whephiwums !== 'undefined') {
-        _whephiwums.push(function() {
-          callback();
-        });
-      } else {
-        callback();
+      let played = false;
+      try {
+        if (typeof _whephiwums !== 'undefined') {
+          _whephiwums.push(function () {
+            played = true;
+            window.location.href = 'game.html';
+          });
+        }
+      } catch (e) {
+        console.log("Ad error:", e);
       }
+      setTimeout(() => {
+        if (!played) window.location.href = 'game.html';
+      }, 18000); // fallback after 4 sec
     }
   </script>
 </body>
