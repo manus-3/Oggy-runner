@@ -158,25 +158,7 @@
       });
     });
 
-    // Show ad then go to game
-    window.showAdThenPlay = function () {
-      let adShown = false;
-      try {
-        if (typeof show_9217711 === 'function') {
-          show_9217711().then(() => {
-            adShown = true;
-            window.location.href = 'game.html';
-          }).catch(() => {
-            window.location.href = 'game.html';
-          });
-        } else {
-          setTimeout(() => window.location.href = 'game.html', 5000);
-        }
-      } catch (e) {
-        console.log("Ad error:", e);
-        setTimeout(() => window.location.href = 'game.html', 5000);
-      }
-    };<script>
+    <script>
   // Ad Show before game with fallback timer
   window.showAdThenPlay = function () {
     const playButton = document.querySelector(".button");
