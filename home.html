@@ -176,7 +176,43 @@
         console.log("Ad error:", e);
         setTimeout(() => window.location.href = 'game.html', 5000);
       }
-    };
+    };<script>
+  // Ad Show before game with fallback timer
+  window.showAdThenPlay = function () {
+    const playButton = document.querySelector(".button");
+    playButton.disabled = true;
+    playButton.innerText = "Loading Ad...";
+
+    let played = false;
+
+    // Timer fallback after 10 seconds
+    const fallback = setTimeout(() => {
+      if (!played) {
+        playButton.innerText = "Launching Game...";
+        window.location.href = "game.html";
+      }
+    }, 10000);
+
+    try {
+      if (typeof show_9217711 === 'function') {
+        show_9217711().then(() => {
+          played = true;
+          clearTimeout(fallback);
+          playButton.innerText = "Launching Game...";
+          window.location.href = "game.html";
+        }).catch((e) => {
+          console.error("Ad error:", e);
+          playButton.innerText = "Launching Game...";
+          window.location.href = "game.html";
+        });
+      } else {
+        console.warn("Ad function not found");
+      }
+    } catch (e) {
+      console.error("Ad error:", e);
+    }
+  };
+</script>
   </script>
 </body>
 </html>
