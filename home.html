@@ -1,183 +1,194 @@
-<!DOCTYPE html>  <html>  
-<head>  
-  <title>Oggy and the Cockroaches</title>  
-  <meta charset="UTF-8">  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-  <script src="https://whephiwums.com/sdk.js" data-zone="9217711" data-sdk="show_9217711"></script>  
-  <style>  
-    body {  
-      margin: 0;  
-      background: url('https://lh3.googleusercontent.com/d/1-BWJ7G4A8JVhtOlIRCq6rGFz_4gY91wY') no-repeat center center fixed;  
-      background-size: cover;  
-      font-family: Arial, sans-serif;  
-      color: white;  
-      overflow-y: auto;  
-      padding-bottom: 100px;  
-    }  
-    .content {  
-      padding: 20px;  
-      text-align: center;  
-    }  
-    .button {  
-      background-color: #1e88e5;  
-      color: white;  
-      padding: 15px 30px;  
-      font-size: 20px;  
-      border: none;  
-      border-radius: 10px;  
-      margin-top: 30px;  
-    }  
-    .nav-bar {  
-      position: fixed;  
-      bottom: 0;  
-      left: 0;  
-      right: 0;  
-      background: rgba(0, 0, 0, 0.8);  
-      display: flex;  
-      justify-content: space-around;  
-      padding: 10px 0;  
-      z-index: 1000;  
-    }  
-    .nav-button {  
-      display: flex;  
-      flex-direction: column;  
-      align-items: center;  
-      border: none;  
-      background: none;  
-      color: white;  
-      font-size: 12px;  
-      cursor: pointer;  
-    }  
-    .nav-button img {  
-      width: 24px;  
-      height: 24px;  
-      margin-bottom: 3px;  
-    }  
-    .user-info {  
-      margin-top: 20px;  
-      background-color: rgba(0,0,0,0.6);  
-      padding: 10px;  
-      border-radius: 10px;  
-    }  
-  </style>  
-</head>  
-<body>  
-  <div class="content">  
-    <h1></h1>  
-    <div class="user-info" id="userInfo">Loading...</div>  
-    <button class="button" onclick="showAdThenPlay()">Play Now</button>  
-  </div>    <!-- Bottom Navigation Bar -->    <div class="nav-bar">  
-    <button onclick="window.location.href='home.html'" class="nav-button">  
-      <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png">  
-      <span>Home</span>  
-    </button>  
-    <button onclick="window.location.href='referral.html'" class="nav-button">  
-      <img src="https://cdn-icons-png.flaticon.com/512/929/929610.png">  
-      <span>Refer Now</span>  
-    </button>  
-    <button onclick="window.location.href='withdraw.html'" class="nav-button">  
-      <img src="https://cdn-icons-png.flaticon.com/512/1041/1041872.png">  
-      <span>Withdraw</span>  
-    </button>  
-    <button onclick="window.location.href='powerup.html'" class="nav-button">  
-      <img src="https://cdn-icons-png.flaticon.com/512/189/189665.png">  
-      <span>Power Up</span>  
-    </button>  
-    <button onclick="window.location.href='leaderboard.html'" class="nav-button">  
-      <img src="https://cdn-icons-png.flaticon.com/512/992/992700.png">  
-      <span>Leaderboard</span>  
-    </button>  
-  </div>    <!-- Firebase & Telegram -->    <script src="https://telegram.org/js/telegram-web-app.js"></script>    <script type="module">  
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";  
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";  
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";  
-  
-    const firebaseConfig = {  
-      apiKey: "AIzaSyDVlPYXeHPNLaYy8UQp8c_TQwvEidTuyf4",  
-      authDomain: "oggy-runner.firebaseapp.com",  
-      projectId: "oggy-runner",  
-    };  
-  
-    const app = initializeApp(firebaseConfig);  
-    const auth = getAuth(app);  
-    const db = getFirestore(app);  
-    const tg = window.Telegram.WebApp;  
-    tg.ready();  
-  
-    signInAnonymously(auth).then(() => {  
-      onAuthStateChanged(auth, async (user) => {  
-        if (user) {  
-          const uid = user.uid;  
-          const ref = new URLSearchParams(window.location.search).get("ref") || "";  
-  
-          const userRef = doc(db, "users", uid);  
-          const docSnap = await getDoc(userRef);  
-  
-          if (!docSnap.  
-          if (!docSnap.exists()) {  
-            const newUser = {  
-              uid: uid,  
-              name: tg.initDataUnsafe.user?.first_name || "Unknown",  
-              tg_id: tg.initDataUnsafe.user?.id || "N/A",  
-              created_at: Date.now(),  
-              cockroach_coin: 0,  
-              last_catch: 0,  
-              oggy_coin: 0,  
-              usd_balance: 0,  
-              referral_code: uid.slice(0, 6),  
-              referral_count: 0,  
-              referred_by: ref  
-            };  
-            await setDoc(userRef, newUser);  
-  
-            if (ref) {  
-              const refUserRef = doc(db, "users", ref);  
-              const refSnap = await getDoc(refUserRef);  
-              if (refSnap.exists()) {  
-                const refData = refSnap.data();  
-                await setDoc(refUserRef, {  
-                  referral_count: (refData.referral_count || 0) + 1  
-                }, { merge: true });  
-              }  
-            }  
-          }  
-  
-          const userDoc = await getDoc(userRef);  
-          const data = userDoc.data();  
-          document.getElementById("userInfo").innerHTML = `  
-            <p><strong>${data.name}</strong></p>  
-            <p>Cockroach: ${data.cockroach_coin}</p>  
-            <p>Oggy Coin: ${data.oggy_coin}</p>  
-            <p>Balance: $${data.usd_balance}</p>  
-            <p>Referrals: ${data.referral_count || 0}</p>  
-          `;  
-        }  
-      });  
-    });  
-  
-    // Ad Show before game  
-   window.showAdThenPlay = function () {
-  let played = false;
-  try {
-    if (typeof _whephiwums !== 'undefined' && typeof _whephiwums.show_9217711 === 'function') {
-      _whephiwums.show_9217711(); // অ্যাড চালাও
-      _whephiwums.push(function () {
-        played = true;
-        window.location.href = 'game.html'; // অ্যাড দেখানোর পরে redirect
-      });
-    } else {
-      console.log("Ad SDK or method not found.");
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Oggy and the Cockroaches</title>
+  <!-- Ad SDK -->
+  <script src="https://whephiwums.com/sdk.js" data-zone="9217711" data-sdk="show_9217711"></script>
+  <style>
+    body {
+      margin: 0;
+      background: url('https://lh3.googleusercontent.com/d/1-BWJ7G4A8JVhtOlIRCq6rGFz_4gY91wY') no-repeat center center fixed;
+      background-size: cover;
+      font-family: Arial, sans-serif;
+      color: white;
+      overflow-y: auto;
+      padding-bottom: 100px;
     }
-  } catch (e) {
-    console.log("Ad error:", e);
-  }
+    .content {
+      padding: 20px;
+      text-align: center;
+    }
+    .button {
+      background-color: #1e88e5;
+      color: white;
+      padding: 15px 30px;
+      font-size: 20px;
+      border: none;
+      border-radius: 10px;
+      margin-top: 30px;
+      cursor: pointer;
+      position: relative;
+    }
+    #ad-timer {
+      margin-top: 10px;
+      font-size: 16px;
+    }
+    .nav-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      z-index: 1000;
+    }
+    .nav-button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border: none;
+      background: none;
+      color: white;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .nav-button img {
+      width: 24px;
+      height: 24px;
+      margin-bottom: 3px;
+    }
+    .user-info {
+      margin-top: 20px;
+      background-color: rgba(0,0,0,0.6);
+      padding: 10px;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <h1>Oggy and the Cockroaches</h1>
+    <div class="user-info" id="userInfo">Loading...</div><!-- Play Button & Timer -->
+<button class="button" id="playBtn">Play Now</button>
+<div id="ad-timer"></div>
 
-  setTimeout(() => {
-    if (!played) {
-      window.location.href = 'game.html'; // fallback
+  </div>  <!-- Bottom Navigation Bar -->  <div class="nav-bar">
+    <button onclick="location.href='home.html'" class="nav-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" alt="Home">
+      <span>Home</span>
+    </button>
+    <button onclick="location.href='referral.html'" class="nav-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/929/929610.png" alt="Refer">
+      <span>Refer Now</span>
+    </button>
+    <button onclick="location.href='withdraw.html'" class="nav-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/1041/1041872.png" alt="Withdraw">
+      <span>Withdraw</span>
+    </button>
+    <button onclick="location.href='powerup.html'" class="nav-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/189/189665.png" alt="Power Up">
+      <span>Power Up</span>
+    </button>
+    <button onclick="location.href='leaderboard.html'" class="nav-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/992/992700.png" alt="Leaderboard">
+      <span>Leaderboard</span>
+    </button>
+  </div>  <!-- Firebase & Telegram Integration -->  <script src="https://telegram.org/js/telegram-web-app.js"></script>  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDVlPYXeHPNLaYy8UQp8c_TQwvEidTuyf4",
+      authDomain: "oggy-runner.firebaseapp.com",
+      projectId: "oggy-runner",
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+
+    // Auth & User Init
+    signInAnonymously(auth).then(() => {
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) return;
+        const uid = user.uid;
+        const ref = new URLSearchParams(window.location.search).get('ref') || '';
+        const userRef = doc(db, 'users', uid);
+        const docSnap = await getDoc(userRef);
+        if (!docSnap.exists()) {
+          const newUser = {
+            uid, name: tg.initDataUnsafe.user?.first_name || 'Unknown',
+            tg_id: tg.initDataUnsafe.user?.id || 'N/A', created_at: Date.now(),
+            cockroach_coin: 0, last_catch: 0, oggy_coin: 0,
+            usd_balance: 0, referral_code: uid.slice(0,6), referral_count: 0,
+            referred_by: ref
+          };
+          await setDoc(userRef, newUser);
+          if (ref) {
+            const refSnap = await getDoc(doc(db,'users',ref));
+            if (refSnap.exists()) {
+              const count = (refSnap.data().referral_count||0)+1;
+              await setDoc(doc(db,'users',ref),{ referral_count:count },{merge:true});
+            }
+          }
+        }
+        const data = (await getDoc(userRef)).data();
+        document.getElementById('userInfo').innerHTML = `
+          <p><strong>${data.name}</strong></p>
+          <p>Cockroach: ${data.cockroach_coin}</p>
+          <p>Oggy Coin: ${data.oggy_coin}</p>
+          <p>Balance: $${data.usd_balance}</p>
+          <p>Referrals: ${data.referral_count}</p>
+        `;
+      });
+    });
+
+    // Ad & Timer Logic
+    const playBtn = document.getElementById('playBtn');
+    const adTimerEl = document.getElementById('ad-timer');
+    playBtn.addEventListener('click', () => showAdThenPlay(10));
+
+    function showAdThenPlay(seconds) {
+      let countdown = seconds;
+      adTimerEl.textContent = `Loading ad: ${countdown}s`;
+      playBtn.disabled = true;
+
+      // Update countdown every second
+      const interval = setInterval(() => {
+        countdown--;
+        if (countdown >= 0) adTimerEl.textContent = `Loading ad: ${countdown}s`;
+      }, 1000);
+
+      let adPlayed = false;
+      // Try to play ad if SDK available
+      try {
+        if (Array.isArray(window._whephiwums)) {
+          window._whephiwums.push(() => {
+            adPlayed = true;
+            clearInterval(interval);
+            navigateToGame();
+          });
+        }
+      } catch (e) {
+        console.error('Ad SDK error:', e);
+      }
+
+      // Fallback after timeout
+      setTimeout(() => {
+        clearInterval(interval);
+        if (!adPlayed) navigateToGame();
+      }, seconds * 1000 + 500);
     }
-  }, 10000);
+
+    function navigateToGame() {
+      window.location.href = 'game.html';
     }
-  </script>  
-</body>  
-</html> 
+  </script>
+</body>
+</html>
