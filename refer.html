@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Refer and Earn</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: white;
+      text-align: center;
+    }
+    .icon {
+      width: 100px;
+      margin: 20px auto;
+    }
+    .ref-box {
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+    }
+    .ref-code {
+      font-size: 20px;
+      margin: 10px 0;
+      font-weight: bold;
+      word-break: break-all;
+    }
+    .copy-btn {
+      background: #1e88e5;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .nav-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+    }
+    .nav-button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border: none;
+      background: none;
+      color: white;
+      font-size: 12px;
+    }
+    .nav-button img {
+      width: 24px;
+      height: 24px;
+      margin-bottom: 3px;
+    }
+  </style>
+</head>
+<body>
+  <img class="icon" src="https://cdn-icons-png.flaticon.com/512/929/929610.png" alt="Refer" />
+
+  <h2>Invite your friends & earn rewards!</h2>
+
+  <div class="ref-box">
+    <p>Your Referral Code:</p>
+    <p id="refCode" class="ref-code">Loading...</p>
+    <button class="copy-btn" onclick="copyReferral()">Copy & Share</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDVlPYXeHPNLaYy8UQp8c_TQwvEidTuyf4",
+      authDomain: "oggy-runner.firebaseapp.com",
+      projectId: "oggy-runner",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const uid = user.uid;
+        const userRef = doc(db, "users", uid);
+        const docSnap = await getDoc(userRef);
+        if (docSnap.exists()) {
+          const code = docSnap.data().referral_code || uid.slice(0, 6);
+          document.getElementById("refCode").textContent = code;
+          window.myReferralLink = `https://t.me/OggyRunnerBot?startapp=ref=${code}`;
+        }
+      }
+    });
+
+    window.copyReferral = function () {
+      if (window.myReferralLink) {
+        navigator.clipboard.writeText(window.myReferralLink).then(() => {
+          alert("Referral link copied!");
+        });
+      }
+    }
+  </script>
+
+  <!-- Bottom Navigation -->
+  <div class="nav-bar">
+    <button onclick="window.location.href='home.html'" class="nav-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png">
+      <span>Home</span>
+    </button>
+    <button onclick="window.location.href='referral.html'" class="nav-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/929/929610.png">
+      <span>Refer</span>
+    </button>
+    <button onclick="window.location.href='withdraw.html'" class="nav-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/1041/1041872.png">
+      <span>Withdraw</span>
+    </button>
+    <button onclick="window.location.href='powerup.html'" class="nav-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/189/189665.png">
+      <span>Power Up</span>
+    </button>
+    <button onclick="window.location.href='leaderboard.html'" class="nav-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/992/992700.png">
+      <span>Leaderboard</span>
+    </button>
+  </div>
+</body>
+</html>
