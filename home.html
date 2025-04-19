@@ -160,21 +160,23 @@
   let played = false;
   try {
     if (typeof _whephiwums !== 'undefined' && typeof _whephiwums.show_9217711 === 'function') {
-      _whephiwums.show_9217711(); // এই লাইনে অ্যাড ট্রিগার হচ্ছে
+      _whephiwums.show_9217711(); // অ্যাড চালাও
       _whephiwums.push(function () {
         played = true;
-        window.location.href = 'game.html';
+        window.location.href = 'game.html'; // অ্যাড দেখানোর পরে redirect
       });
     } else {
-      console.log("Ad SDK or method not available.");
+      console.log("Ad SDK or method not found.");
     }
   } catch (e) {
     console.log("Ad error:", e);
   }
 
   setTimeout(() => {
-    if (!played) window.location.href = 'game.html';
-  }, 18000); // fallback delay
+    if (!played) {
+      window.location.href = 'game.html'; // fallback
+    }
+  }, 10000);
     }
   </script>  
 </body>  
