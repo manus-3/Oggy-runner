@@ -156,10 +156,10 @@
   
     // Ad Show before game  
     window.showAdThenPlay = function () {  
-      let played = false;  
+      let played = true;  
       try {  
-       if (typeof show_9217711 === 'function') {
-                show_9217711().(function () {  
+      if (typeof _whephiwums !== 'undefined') {    
+          _whephiwums.push(function () {  
             played = true;  
             window.location.href = 'game.html';  
           });  
