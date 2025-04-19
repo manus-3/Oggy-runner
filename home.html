@@ -156,22 +156,26 @@
     });  
   
     // Ad Show before game  
-    window.showAdThenPlay = function () {  
-      let played = true;  
-      try {  
-      if (typeof _whephiwums !== 'show_9217711') {    
-          _whephiwums.push(function () {  
-            played = true;  
-            window.location.hr;  
-            window.location.href = 'game.html';  
-          });  
-        }  
-      } catch (e) {  
-        console.log("Ad error:", e);  
-      }  
-      setTimeout(() => {  
-        if (!played) window.location.href = 'game.html';  
-      }, 10000);  
-    }  
-  </script>  </body>  
+   window.showAdThenPlay = function () {
+  let played = false;
+  try {
+    if (typeof _whephiwums !== 'undefined' && typeof _whephiwums.show_9217711 === 'function') {
+      _whephiwums.show_9217711(); // এই লাইনে অ্যাড ট্রিগার হচ্ছে
+      _whephiwums.push(function () {
+        played = true;
+        window.location.href = 'game.html';
+      });
+    } else {
+      console.log("Ad SDK or method not available.");
+    }
+  } catch (e) {
+    console.log("Ad error:", e);
+  }
+
+  setTimeout(() => {
+    if (!played) window.location.href = 'game.html';
+  }, 18000); // fallback delay
+    }
+  </script>  
+</body>  
 </html> 
