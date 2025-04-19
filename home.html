@@ -1,202 +1,182 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Oggy and the Cockroaches</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://whephiwums.com/sdk.js" data-zone="9217711" data-sdk="show_9217711"></script>
+  <style>
+    body {
+      margin: 0;
+      background: url('https://lh3.googleusercontent.com/d/1-BWJ7G4A8JVhtOlIRCq6rGFz_4gY91wY') no-repeat center center fixed;
+      background-size: cover;
+      font-family: Arial, sans-serif;
+      color: white;
+      overflow-y: auto;
+      padding-bottom: 100px;
+    }
+    .content {
+      padding: 20px;
+      text-align: center;
+    }
+    .button {
+      background-color: #1e88e5;
+      color: white;
+      padding: 15px 30px;
+      font-size: 20px;
+      border: none;
+      border-radius: 10px;
+      margin-top: 30px;
+    }
+    .nav-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      z-index: 1000;
+    }
+    .nav-button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border: none;
+      background: none;
+      color: white;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .nav-button img {
+      width: 24px;
+      height: 24px;
+      margin-bottom: 3px;
+    }
+    .user-info {
+      margin-top: 20px;
+      background-color: rgba(0,0,0,0.6);
+      padding: 10px;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <h1></h1>
+    <div class="user-info" id="userInfo">Loading...</div>
+    <button class="button" onclick="showAdThenPlay()">Play Now</button>
+  </div>
 
-  <!-- অ্যাসিঙ্ক্রোনাস অ্যাড SDK -->
-  <script async src="https://whephiwums.com/sdk.js" 
-          data-zone="9217711" data-sdk="show_9217711"></script>
+  <div class="nav-bar">
+    <button onclick="window.location.href='home.html'" class="nav-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png">
+      <span>Home</span>
+    </button>
+    <button onclick="window.location.href='referral.html'" class="nav-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/929/929610.png">
+      <span>Refer Now</span>
+    </button>
+    <button onclick="window.location.href='withdraw.html'" class="nav-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/1041/1041872.png">
+      <span>Withdraw</span>
+    </button>
+    <button onclick="window.location.href='powerup.html'" class="nav-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/189/189665.png">
+      <span>Power Up</span>
+    </button>
+    <button onclick="window.location.href='leaderboard.html'" class="nav-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/992/992700.png">
+      <span>Leaderboard</span>
+    </button>
+  </div>
 
-  <!-- Firebase & Telegram WebApp SDK -->
-  <script defer src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script defer type="module">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    // Firebase কনফিগারেশন
     const firebaseConfig = {
-      apiKey: "AIzaSyDVlPYXeHPNLaYy8Uq8c_TQwvEidTuyf4",
+      apiKey: "AIzaSyDVlPYXeHPNLaYy8UQp8c_TQwvEidTuyf4",
       authDomain: "oggy-runner.firebaseapp.com",
-      projectId: "oggy-runner"
+      projectId: "oggy-runner",
     };
+
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
     const tg = window.Telegram.WebApp;
     tg.ready();
 
-    // অ্যানোনিমাস লগইন ও ইউজার ইন্ফো লোড
     signInAnonymously(auth).then(() => {
-      onAuthStateChanged(auth, async user => {
-        if (!user) return;
-        const uid = user.uid;
-        const refCode = new URLSearchParams(location.search).get("ref") || "";
-        const userRef = doc(db, "users", uid);
-        const snap = await getDoc(userRef);
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          const uid = user.uid;
+          const ref = new URLSearchParams(window.location.search).get("ref") || "";
+          const userRef = doc(db, "users", uid);
+          const docSnap = await getDoc(userRef);
 
-        // নতুন ইউজার?
-        if (!snap.exists()) {
-          const data = {
-            uid, 
-            name: tg.initDataUnsafe.user?.first_name || "Unknown",
-            tg_id: tg.initDataUnsafe.user?.id || "N/A",
-            created_at: Date.now(),
-            cockroach_coin: 0,
-            oggy_coin: 0,
-            usd_balance: 0,
-            referral_code: uid.slice(0,6),
-            referral_count: 0,
-            referred_by: refCode
-          };
-          await setDoc(userRef, data);
-          if (refCode) {
-            const refRef = doc(db, "users", refCode);
-            const refSnap = await getDoc(refRef);
-            if (refSnap.exists()) {
-              await setDoc(refRef, {
-                referral_count: (refSnap.data().referral_count || 0) + 1
-              }, { merge: true });
+          if (!docSnap.exists()) {
+            const newUser = {
+              uid: uid,
+              name: tg.initDataUnsafe.user?.first_name || "Unknown",
+              tg_id: tg.initDataUnsafe.user?.id || "N/A",
+              created_at: Date.now(),
+              cockroach_coin: 0,
+              last_catch: 0,
+              oggy_coin: 0,
+              usd_balance: 0,
+              referral_code: uid.slice(0, 6),
+              referral_count: 0,
+              referred_by: ref
+            };
+            await setDoc(userRef, newUser);
+            if (ref) {
+              const refUserRef = doc(db, "users", ref);
+              const refSnap = await getDoc(refUserRef);
+              if (refSnap.exists()) {
+                const refData = refSnap.data();
+                await setDoc(refUserRef, {
+                  referral_count: (refData.referral_count || 0) + 1
+                }, { merge: true });
+              }
             }
           }
-        }
 
-        // ইউজার ইন্ফো দেখানো
-        const userData = (await getDoc(userRef)).data();
-        document.getElementById("userInfo").innerHTML = `
-          <p><strong>${userData.name}</strong></p>
-          <p>Cockroaches: ${userData.cockroach_coin}</p>
-          <p>Oggy Coins: ${userData.oggy_coin}</p>
-          <p>Balance: $${userData.usd_balance}</p>
-          <p>Referrals: ${userData.referral_count}</p>
-        `;
+          const userDoc = await getDoc(userRef);
+          const data = userDoc.data();
+          document.getElementById("userInfo").innerHTML = `
+            <p><strong>${data.name}</strong></p>
+            <p>Cockroach: ${data.cockroach_coin}</p>
+            <p>Oggy Coin: ${data.oggy_coin}</p>
+            <p>Balance: $${data.usd_balance}</p>
+            <p>Referrals: ${data.referral_count || 0}</p>
+          `;
+        }
       });
     });
-  </script>
 
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: Arial, sans-serif;
-      color: #fff;
-      background: url('https://lh3.googleusercontent.com/d/1-BWJ7G4A8JVhtOlIRCq6rGFz_4gY91wY') 
-                  no-repeat center/cover fixed;
-      overflow-y: auto;
-      padding-bottom: 100px;
-    }
-    .content {
-      text-align: center;
-      padding: 20px;
-    }
-    .button {
-      background: #1e88e5;
-      color: #fff;
-      padding: 15px 30px;
-      font-size: 20px;
-      border: none;
-      border-radius: 10px;
-      margin-top: 30px;
-      cursor: pointer;
-    }
-    .timer {
-      margin-top: 15px;
-      font-size: 18px;
-      color: #ffd54f;
-    }
-    .user-info {
-      margin-top: 20px;
-      background: rgba(0,0,0,0.6);
-      padding: 10px;
-      border-radius: 10px;
-    }
-    .nav-bar {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      background: rgba(0,0,0,0.8);
-      display: flex; justify-content: space-around;
-      padding: 10px 0; z-index: 1000;
-    }
-    .nav-button {
-      display: flex; flex-direction: column; align-items: center;
-      background: none; border: none; color: #fff;
-      font-size: 12px; cursor: pointer;
-    }
-    .nav-button img { width: 24px; height: 24px; margin-bottom: 3px; }
-  </style>
-</head>
-<body>
-  <div class="content">
-    <h1>Oggy and the Cockroaches</h1>
-    <div class="user-info" id="userInfo">লোড হচ্ছে…</div>
-    <button class="button" id="playBtn">Play Now</button>
-    <div class="timer" id="adTimer">প্রস্তুত হচ্ছে…</div>
-  </div>
-
-  <!-- বটম ন্যাভিগেশন -->
-  <div class="nav-bar">
-    <button class="nav-button" onclick="location.href='home.html'">
-      <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" alt="Home">
-      <span>Home</span>
-    </button>
-    <button class="nav-button" onclick="location.href='referral.html'">
-      <img src="https://cdn-icons-png.flaticon.com/512/929/929610.png" alt="Refer">
-      <span>Refer Now</span>
-    </button>
-    <button class="nav-button" onclick="location.href='withdraw.html'">
-      <img src="https://cdn-icons-png.flaticon.com/512/1041/1041872.png" alt="Withdraw">
-      <span>Withdraw</span>
-    </button>
-    <button class="nav-button" onclick="location.href='powerup.html'">
-      <img src="https://cdn-icons-png.flaticon.com/512/189/189665.png" alt="Power Up">
-      <span>Power Up</span>
-    </button>
-    <button class="nav-button" onclick="location.href='leaderboard.html'">
-      <img src="https://cdn-icons-png.flaticon.com/512/992/992700.png" alt="Leaderboard">
-      <span>Leaderboard</span>
-    </button>
-  </div>
-
-  <script>
-    // অ্যাড দেখানো, কাউন্টডাউন, তারপর game.html এ রিডাইরেক্ট
-    const playBtn = document.getElementById('playBtn');
-    const adTimer = document.getElementById('adTimer');
-    let countdown = 10;  // সেকেন্ডে গেম শুরু হবে
-
-    playBtn.addEventListener('click', () => {
-      playBtn.disabled = true;
-      adTimer.textContent = `লোড হচ্ছে অ্যাড…`;
-      let adPlayed = false;
-
-      // SDK এর মাধ্যমে অ্যাড দেখানোর চেষ্টা
-      const tryShowAd = () => {
-        if (window._whephiwums && typeof window._whephiwums.push === 'function') {
-          window._whephiwums.push(() => {
-            adPlayed = true;
-            startCountdown();
+    // Show ad then go to game
+    window.showAdThenPlay = function () {
+      let adShown = false;
+      try {
+        if (typeof show_9217711 === 'function') {
+          show_9217711().then(() => {
+            adShown = true;
+            window.location.href = 'game.html';
+          }).catch(() => {
+            window.location.href = 'game.html';
           });
+        } else {
+          setTimeout(() => window.location.href = 'game.html', 5000);
         }
-      };
-
-      // ২ সেকেন্ড পরও অ্যাড না দেখলে কাউন্টডাউন শুরু
-      setTimeout(() => {
-        if (!adPlayed) startCountdown();
-      }, 2000);
-
-      tryShowAd();
-    });
-
-    function startCountdown() {
-      adTimer.textContent = `গেম শুরু হবে ${countdown} সেকেন্ডে…`;
-      const timerId = setInterval(() => {
-        countdown--;
-        adTimer.textContent = `গেম শুরু হবে ${countdown} সেকেন্ডে…`;
-        if (countdown <= 0) {
-          clearInterval(timerId);
-          location.href = 'game.html';
-        }
-      }, 1000);
-    }
+      } catch (e) {
+        console.log("Ad error:", e);
+        setTimeout(() => window.location.href = 'game.html', 5000);
+      }
+    };
   </script>
 </body>
 </html>
