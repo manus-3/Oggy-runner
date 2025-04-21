@@ -102,22 +102,23 @@
   </div>
 
   <!-- Telegram + Firebase -->
-  <script type="module">
+  <div id="leaderboard" style="font-family: sans-serif;"></div>
+
+<script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
   import {
     getAuth,
-    onAuthStateChanged,
     signInAnonymously,
+    onAuthStateChanged,
   } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
   import {
     getFirestore,
-    doc,
-    getDoc,
-    setDoc,
     collection,
-    getDocs,
     query,
     orderBy,
+    getDocs,
+    doc,
+    getDoc,
   } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -133,12 +134,9 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // ✅ শুধু এইটুকু তোমার মতো করে লিখে দিলেই চলবে
   const rewardText = `
-1=1
-2-15=0.5
-16-500=0.00008
-501-2000=0.00000005
+1=0.1
+2-10=0.005
 `;
 
   const rewardRules = rewardText
@@ -162,50 +160,53 @@
     return 0;
   }
 
-  function shouldResetWeekly(lastTimestamp) {
-    const now = new Date();
-    const last = new Date(lastTimestamp || 0);
-    const isFriday = now.getDay() === 5;
-    const isAfter10PM = now.getHours() >= 22;
-    const isNewWeek =
-      now.getFullYear() !== last.getFullYear() ||
-      now.getMonth() !== last.getMonth() ||
-      now.getDate() !== last.getDate();
-    return isFriday && isAfter10PM && isNewWeek;
+  function createRow(rank, name, score, isYou, reward) {
+    return `
+      <div id="user-${rank}" style="padding: 8px; margin: 4px 0; background: ${
+      isYou ? "#d4f1f9" : "#f9f9f9"
+    }; border: 1px solid #ccc; border-radius: 8px;">
+        <b>#${rank}</b> - ${name} | Cockroach: ${score} ${
+      reward ? `| Reward: $${reward}` : ""
+    } ${isYou ? "<b>(You)</b>" : ""}
+      </div>
+    `;
   }
 
-  async function assignWeeklyRewardsIfNeeded() {
-    const configRef = doc(db, "config", "weekly_reset");
-    const configSnap = await getDoc(configRef);
-    const lastReset = configSnap.exists() ? configSnap.data().timestamp : 0;
+  async function showLeaderboard(userId) {
+    const q = query(collection(db, "users"), orderBy("cockroach_coin", "desc"));
+    const querySnapshot = await getDocs(q);
+    const leaderboardDiv = document.getElementById("leaderboard");
 
-    if (!shouldResetWeekly(lastReset)) return;
-
-    const usersRef = collection(db, "users");
-    const topSnap = await getDocs(query(usersRef, orderBy("cockroach_coin", "desc")));
+    let html = "<h2>Weekly Leaderboard</h2>";
     let rank = 1;
+    let yourRankId = "";
 
-    for (const docSnap of topSnap.docs) {
-      const uid = docSnap.id;
-      const rewardUsd = getRewardForRank(rank);
-      if (rewardUsd > 0) {
-        await setDoc(doc(db, "weekly_rewards", uid), {
-          usd: rewardUsd,
-          rank: rank,
-        });
-      }
+    querySnapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      const name = data.name || "Unknown";
+      const score = data.cockroach_coin || 0;
+      const isYou = docSnap.id === userId;
+      const reward = getRewardForRank(rank);
+      html += createRow(rank, name, score, isYou, reward);
+      if (isYou) yourRankId = `user-${rank}`;
       rank++;
-    }
+    });
 
-    await setDoc(configRef, { timestamp: Date.now() });
+    leaderboardDiv.innerHTML = html;
+
+    if (yourRankId) {
+      setTimeout(() => {
+        const yourRow = document.getElementById(yourRankId);
+        yourRow.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 500);
+    }
   }
 
-  signInAnonymously(auth).catch((e) => console.error("Anon signin error", e));
-
-  onAuthStateChanged(auth, async (user) => {
+  signInAnonymously(auth).catch((e) => console.error("Signin error", e));
+  onAuthStateChanged(auth, (user) => {
     if (!user) return;
-    await assignWeeklyRewardsIfNeeded();
+    showLeaderboard(user.uid);
   });
-  </script>
+</script>
 </body>
 </html>
