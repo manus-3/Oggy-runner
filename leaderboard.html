@@ -102,96 +102,110 @@
   </div>
 
   <!-- Telegram + Firebase -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, getDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signInAnonymously,
+  } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    setDoc,
+    collection,
+    getDocs,
+    query,
+    orderBy,
+  } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDVlPYXeHPNLaYy8UQp8c_TQwvEidTuyf4",
-      authDomain: "oggy-runner.firebaseapp.com",
-      projectId: "oggy-runner",
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyDVlPYXeHPNLaYy8UQp8c_TQwvEidTuyf4",
+    authDomain: "oggy-runner.firebaseapp.com",
+    projectId: "oggy-runner",
+    storageBucket: "oggy-runner.appspot.com",
+    messagingSenderId: "747549154067",
+    appId: "1:747549154067:web:oggyrunner",
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-    const tg = window.Telegram.WebApp;
-    tg.ready();
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-    const leaderboardEl = document.getElementById("leaderboardList");
-    const myRankEl = document.getElementById("myRank");
-    const rewardMsgEl = document.getElementById("rewardMsg");
+  // ✅ শুধু এইটুকু তোমার মতো করে লিখে দিলেই চলবে
+  const rewardText = `
+1=1
+2-15=0.5
+16-500=0.00008
+501-2000=0.00000005
+`;
 
-    function shouldResetWeekly(timestamp) {
-      const now = new Date();
-      const last = new Date(timestamp);
-      const thisFriday = new Date();
-      thisFriday.setHours(22, 0, 0, 0);
-      thisFriday.setDate(thisFriday.getDate() - ((thisFriday.getDay() + 2) % 7)); // শুক্রবার ধরছে
-      
-      return now > thisFriday && last < thisFriday;
+  const rewardRules = rewardText
+    .trim()
+    .split("\n")
+    .map((line) => {
+      const [range, usd] = line.split("=");
+      if (range.includes("-")) {
+        const [min, max] = range.split("-").map(Number);
+        return { min, max, usd: parseFloat(usd) };
+      } else {
+        const rank = parseInt(range);
+        return { min: rank, max: rank, usd: parseFloat(usd) };
+      }
+    });
+
+  function getRewardForRank(rank) {
+    for (const rule of rewardRules) {
+      if (rank >= rule.min && rank <= rule.max) return rule.usd;
+    }
+    return 0;
+  }
+
+  function shouldResetWeekly(lastTimestamp) {
+    const now = new Date();
+    const last = new Date(lastTimestamp || 0);
+    const isFriday = now.getDay() === 5;
+    const isAfter10PM = now.getHours() >= 22;
+    const isNewWeek =
+      now.getFullYear() !== last.getFullYear() ||
+      now.getMonth() !== last.getMonth() ||
+      now.getDate() !== last.getDate();
+    return isFriday && isAfter10PM && isNewWeek;
+  }
+
+  async function assignWeeklyRewardsIfNeeded() {
+    const configRef = doc(db, "config", "weekly_reset");
+    const configSnap = await getDoc(configRef);
+    const lastReset = configSnap.exists() ? configSnap.data().timestamp : 0;
+
+    if (!shouldResetWeekly(lastReset)) return;
+
+    const usersRef = collection(db, "users");
+    const topSnap = await getDocs(query(usersRef, orderBy("cockroach_coin", "desc")));
+    let rank = 1;
+
+    for (const docSnap of topSnap.docs) {
+      const uid = docSnap.id;
+      const rewardUsd = getRewardForRank(rank);
+      if (rewardUsd > 0) {
+        await setDoc(doc(db, "weekly_rewards", uid), {
+          usd: rewardUsd,
+          rank: rank,
+        });
+      }
+      rank++;
     }
 
-    signInAnonymously(auth).then(() => {
-      onAuthStateChanged(auth, async (user) => {
-        if (!user) return;
-        const uid = user.uid;
+    await setDoc(configRef, { timestamp: Date.now() });
+  }
 
-        const configDoc = await getDoc(doc(db, "config", "weekly_reset"));
-        const lastReset = configDoc.exists() ? configDoc.data().timestamp : 0;
+  signInAnonymously(auth).catch((e) => console.error("Anon signin error", e));
 
-        if (shouldResetWeekly(lastReset)) {
-          rewardMsgEl.innerText = "This week's leaderboard needs reset. Please ask admin to reset.";
-        }
-
-        // Load leaderboard
-        const usersRef = collection(db, "users");
-        const q = query(usersRef, orderBy("cockroach_coin", "desc"), limit(100));
-        const snap = await getDocs(q);
-
-        const users = [];
-        let currentUserData = null;
-        let rank = 1;
-
-        snap.forEach(doc => {
-          const data = doc.data();
-          data.rank = rank++;
-          users.push(data);
-        });
-
-        leaderboardEl.innerHTML = "";
-
-        users.forEach((u, i) => {
-          const isTop = i === 0;
-          leaderboardEl.innerHTML += `
-            <div class="leader" style="${isTop ? 'background: #ffd600; color: black;' : ''}">
-              <strong>${u.name || 'Unknown'}</strong>
-              <div>${u.cockroach_coin} Cockroach</div>
-              <div class="rank-tag">#${u.rank}</div>
-            </div>
-          `;
-          if (u.uid === uid) currentUserData = u;
-        });
-
-        // Current user rank
-        if (currentUserData) {
-          myRankEl.innerHTML = `
-            <p><strong>Your Cockroach Coin:</strong> ${currentUserData.cockroach_coin}</p>
-            <p><strong>Your Rank:</strong> #${currentUserData.rank}</p>
-          `;
-        } else {
-          myRankEl.innerHTML = "<p>You are not ranked yet.</p>";
-        }
-
-        // Load reward message
-        const rewardDoc = await getDoc(doc(db, "config", "rewards_message"));
-        if (rewardDoc.exists()) {
-          rewardMsgEl.innerText = rewardDoc.data().text || rewardMsgEl.innerText;
-        }
-      });
-    });
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    await assignWeeklyRewardsIfNeeded();
+  });
   </script>
 </body>
-      </html>
+</html>
