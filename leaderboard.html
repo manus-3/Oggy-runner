@@ -167,7 +167,7 @@
           leaderboardEl.innerHTML += `
             <div class="leader" style="${isTop ? 'background: #ffd600; color: black;' : ''}">
               <strong>${u.name || 'Unknown'}</strong>
-              <div>${u.cockroach_coin} Cockroach</div>
+              <div>${u.weekly_cockroach_coin} Cockroach</div>
               <div class="rank-tag">#${u.rank}</div>
             </div>
           `;
@@ -177,7 +177,7 @@
         // User rank
         if (currentUserData) {
           myRankEl.innerHTML = `
-            <p><strong>Your Cockroach Coin:</strong> ${currentUserData.cockroach_coin}</p>
+            <p><strong>Your Cockroach Coin:</strong> ${currentUserData.weekly_cockroach_coin}</p>
             <p><strong>Your Rank:</strong> #${currentUserData.rank}</p>
           `;
         } else {
