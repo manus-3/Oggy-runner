@@ -147,7 +147,7 @@
         }
 
         // Load leaderboard
-        const q = query(collection(db, "users"), orderBy("cockroach_coin", "desc"), limit(2000));
+        const q = query(collection(db, "users"), orderBy("weekly_cockroach_coin", "desc"), limit(2000));
         const snap = await getDocs(q);
 
         const users = [];
