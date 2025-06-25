@@ -1,11 +1,159 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0; URL='home.html'" />
-  <title>Redirecting...</title>
+  <title>Admin Panel - Spiritual Shadow</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #1a1a1a, #333);
+      color: white;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    h2 {
+      text-align: center;
+    }
+    button {
+      padding: 12px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: #00c853;
+      color: white;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    #status {
+      margin-top: 15px;
+      text-align: center;
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body>
-  <p>Redirecting to Home...</p>
+  <div class="container">
+    <h2>Admin Panel</h2>
+    <div id="adminPanel" style="display: none;">
+      <button onclick="runReset()">Reset Weekly + Reward</button>
+      <div id="status">Loading...</div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAXgSGleDzngVCD2R-LzJfzACPoYx6xnpk",
+      authDomain: "spiritual-shadow.firebaseapp.com",
+      projectId: "spiritual-shadow",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+
+    const adminId = "7645792624"; // 🔒 তোমার টেলিগ্রাম ID এখানে
+
+    const statusEl = document.getElementById("status");
+
+    signInAnonymously(auth).then(() => {
+      onAuthStateChanged(auth, async (user) => {
+        const userId = tg.initDataUnsafe.user?.id?.toString();
+        if (userId === adminId) {
+          document.getElementById("adminPanel").style.display = "block";
+          statusEl.innerText = "Ready for reset.";
+        } else {
+          document.getElementById("adminPanel").innerHTML = "<p>⚠️ You are not authorized.</p>";
+        }
+      });
+    });
+
+    // 🎁 Reward Calculation Rules
+    const REWARD_RULES = `
+1=0.5
+2-15=0.05
+16-2001=0.00005
+    `;
+
+    function parseRewardRules(text) {
+      return text.trim().split("\n").map(line => {
+        const [range, usd] = line.split("=");
+        if (range.includes("-")) {
+          const [min, max] = range.split("-").map(Number);
+          return { min, max, usd: parseFloat(usd) };
+        } else {
+          const rank = parseInt(range);
+          return { min: rank, max: rank, usd: parseFloat(usd) };
+        }
+      });
+    }
+
+    function getRewardForRank(rank, rules) {
+      for (let rule of rules) {
+        if (rank >= rule.min && rank <= rule.max) return rule.usd;
+      }
+      return 0;
+    }
+
+    // 🔄 Reset + Reward Function
+    async function runReset() {
+      try {
+        statusEl.innerText = "⏳ Resetting leaderboard...";
+        const usersRef = collection(db, "users");
+        const snap = await getDocs(usersRef);
+
+        const rewardRules = parseRewardRules(REWARD_RULES);
+        const userList = [];
+
+        snap.forEach(doc => {
+          const data = doc.data();
+          userList.push({
+            id: doc.id,
+            name: data.name || "Unknown",
+            shadow_weekly: data.shadow_coin_weekly || 0,
+            usd: data.usd_balance || 0,
+            total: data.shadow_coin_total || 0
+          });
+        });
+
+        userList.sort((a, b) => b.shadow_weekly - a.shadow_weekly);
+
+        let rank = 1;
+        for (const user of userList) {
+          const reward = getRewardForRank(rank, rewardRules);
+          const updates = {
+            shadow_coin_weekly: 0,
+            usd_balance: user.usd + reward,
+            shadow_coin_total: user.total + user.shadow_weekly
+          };
+          await updateDoc(doc(db, "users", user.id), updates);
+          rank++;
+        }
+
+        await setDoc(doc(db, "config", "weekly_reset"), {
+          timestamp: Date.now()
+        });
+
+        statusEl.innerText = "✅ Leaderboard reset & rewards added!";
+      } catch (e) {
+        console.error(e);
+        statusEl.innerText = "❌ Error during reset.";
+      }
+    }
+  </script>
 </body>
 </html>
